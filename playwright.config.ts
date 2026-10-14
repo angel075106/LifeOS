@@ -1,4 +1,6 @@
+import { networkInterfaces } from "node:os";
 import { defineConfig, devices } from "@playwright/test";
+import { devAllowedOrigins } from "./lib/dev-origins";
 
 /*
  * Browser tests.
@@ -25,6 +27,15 @@ const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${port}`;
 const channel =
   process.env.PW_CHANNEL === undefined ? (process.platform === "win32" ? "msedge" : undefined) : process.env.PW_CHANNEL || undefined;
 
+/*
+ * "lan" project: opens LifeOS the way a phone on the same network does, through this
+ * computer's network address over plain HTTP (not localhost, not a secure context). The
+ * browser reaches that address through a .test host name mapped to it, and the dev server is
+ * told to accept that name (LIFEOS_DEV_ORIGINS), as it accepts the LAN address itself.
+ */
+const LAN_HOST = "lifeos-lan.test";
+const lanAddress = remote ? undefined : devAllowedOrigins(networkInterfaces())[0];
+
 export default defineConfig({
   testDir: "./e2e",
   globalSetup: "./e2e/global-setup.ts",
@@ -45,7 +56,7 @@ export default defineConfig({
   projects: [
     {
       name: "desktop",
-      testIgnore: /mobile\.spec\.ts/,
+      testIgnore: /(mobile|lan)\.spec\.ts/,
       use: { viewport: { width: 1366, height: 900 } },
     },
     {
@@ -54,6 +65,21 @@ export default defineConfig({
       // iPhone 13 viewport, touch and user agent, rendered with Chromium/Edge.
       use: { ...devices["iPhone 13"], browserName: "chromium", channel },
     },
+    ...(lanAddress
+      ? [
+          {
+            name: "lan",
+            testMatch: /lan\.spec\.ts/,
+            use: {
+              ...devices["iPhone 13"],
+              browserName: "chromium" as const,
+              channel,
+              baseURL: `http://${LAN_HOST}:${port}`,
+              launchOptions: { args: [`--host-resolver-rules=MAP ${LAN_HOST} ${lanAddress}`] },
+            },
+          },
+        ]
+      : []),
   ],
   webServer: remote
     ? undefined
@@ -62,6 +88,10 @@ export default defineConfig({
         url: `${baseURL}/auth/login`,
         reuseExistingServer: !process.env.CI,
         timeout: 300_000,
-        env: { PORT: String(port), LOCAL_SUPABASE_PORT: process.env.LOCAL_SUPABASE_PORT ?? "54331" },
+        env: {
+          PORT: String(port),
+          LOCAL_SUPABASE_PORT: process.env.LOCAL_SUPABASE_PORT ?? "54331",
+          LIFEOS_DEV_ORIGINS: LAN_HOST,
+        },
       },
 });

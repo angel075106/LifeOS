@@ -30,6 +30,26 @@ test.describe("signed-out visitors", () => {
     await expect(page).toHaveURL(/\/auth\/login/);
   });
 
+  test("an unreachable sign-in service shows an error instead of doing nothing", async ({ page }) => {
+    // The request is aborted in the browser, so nothing reaches any auth server.
+    let attempts = 0;
+    await page.route(/\/auth\/v1\/token/, (route) => {
+      attempts += 1;
+      return route.abort("connectionrefused");
+    });
+    await page.goto("/auth/login");
+    await page.getByRole("textbox", { name: "Email" }).fill("nobody@lifeos.test");
+    await page.getByRole("textbox", { name: "Password" }).fill("definitely-wrong");
+    await page.getByRole("button", { name: "Sign in" }).click();
+
+    await expect(page.getByRole("alert").filter({ hasText: /can't reach the authentication service/i })).toBeVisible();
+    expect(attempts).toBe(1);
+    // Handled by the app: no plain form submission (which would reload to "/auth/login?").
+    await expect(page).toHaveURL(/\/auth\/login$/);
+    await expect(page.getByRole("button", { name: "Sign in" })).toBeEnabled();
+    await expect(page.getByRole("textbox", { name: "Password" })).toHaveValue("definitely-wrong");
+  });
+
   test("auth error page never echoes text from the URL", async ({ page }) => {
     await page.goto("/auth/error?reason=Your%20account%20is%20locked.%20Call%20555-0100");
     await expect(page.getByText("Call 555-0100")).toHaveCount(0);

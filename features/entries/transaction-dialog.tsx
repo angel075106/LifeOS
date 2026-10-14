@@ -54,7 +54,6 @@ export function TransactionDialog({
       {state ? (
         <DialogContent
           title={isEdit ? "Edit transaction" : state.type === "income" ? "New income" : "New expense"}
-          eyebrow={isEdit ? "Ledger" : "New entry"}
           busy={busy}
         >
           <TransactionForm
@@ -196,13 +195,13 @@ function TransactionForm({
               value: "expense",
               label: "Expense",
               icon: <ArrowDownRight aria-hidden="true" />,
-              activeClassName: "text-expense shadow-[inset_0_0_0_1px_rgb(248_113_113/0.5)]",
+              activeClassName: "border-expense/30 bg-expense-soft text-expense",
             },
             {
               value: "income",
               label: "Income",
               icon: <ArrowUpRight aria-hidden="true" />,
-              activeClassName: "text-income shadow-[inset_0_0_0_1px_rgb(52_211_153/0.5)]",
+              activeClassName: "border-income/30 bg-income-soft text-income",
             },
           ]}
         />
@@ -216,7 +215,7 @@ function TransactionForm({
                 inputMode="decimal"
                 autoComplete="off"
                 placeholder="0.00"
-                className="font-mono tabular-nums"
+                className="tabular-nums"
                 maxLength={20}
               />
             )}
@@ -255,9 +254,9 @@ function TransactionForm({
           </Field>
         </div>
         {noCategories ? (
-          <p className="-mt-2 text-xs text-warn">
+          <p className="-mt-2 text-xs text-warning">
             No {type} categories yet.{" "}
-            <Link href="/settings#finance-categories" className="text-cyan underline-offset-4 hover:underline" onClick={onDone}>
+            <Link href="/settings#finance-categories" className="font-medium text-accent-text underline-offset-4 hover:underline" onClick={onDone}>
               Create one in Settings
             </Link>
             .
@@ -276,9 +275,9 @@ function TransactionForm({
       </fieldset>
 
       <FormError message={formError} />
-      {!online ? <p className="text-xs text-warn">You appear to be offline. Saving needs a connection.</p> : null}
+      {!online ? <p className="text-xs text-warning">You appear to be offline. Saving needs a connection.</p> : null}
 
-      <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:items-center">
+      <div className="-mx-5 flex flex-col-reverse gap-2 border-t border-border px-5 pt-4 sm:flex-row sm:items-center">
         {state.mode === "edit" ? (
           <Button
             variant="ghost"
@@ -292,8 +291,7 @@ function TransactionForm({
         ) : null}
         <Button
           type="submit"
-          variant={type === "income" ? "income" : "expense"}
-          size="lg"
+          variant="primary"
           loading={saving}
           className="sm:ml-auto sm:min-w-36"
         >

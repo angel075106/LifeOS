@@ -2,7 +2,7 @@ import { TriangleAlert } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Panel } from "@/components/ui/panel";
+import { AuthCard } from "@/components/auth/auth-shared";
 
 export const metadata: Metadata = { title: "Sign-in problem" };
 
@@ -27,13 +27,13 @@ async function Message({ searchParams }: { searchParams: Promise<{ reason?: stri
 
 export default function Page({ searchParams }: { searchParams: Promise<{ reason?: string | string[] }> }) {
   return (
-    <Panel title="Sign-in problem" index="!" actions={<TriangleAlert className="size-4 text-warn" aria-hidden="true" />}>
+    <AuthCard title="Sign-in problem" icon={<TriangleAlert className="size-5 text-warning" aria-hidden="true" />}>
       <div className="grid gap-4">
         <Suspense fallback={<p className="text-sm text-fg-muted">{FALLBACK}</p>}>
           <Message searchParams={searchParams} />
         </Suspense>
         <div className="flex flex-wrap gap-4 text-sm">
-          <Link href="/auth/login" className="text-cyan underline-offset-4 hover:underline">
+          <Link href="/auth/login" className="font-medium text-accent-text underline-offset-4 hover:underline">
             Sign in
           </Link>
           <Link href="/auth/forgot-password" className="text-fg-muted underline-offset-4 hover:text-fg hover:underline">
@@ -41,6 +41,6 @@ export default function Page({ searchParams }: { searchParams: Promise<{ reason?
           </Link>
         </div>
       </div>
-    </Panel>
+    </AuthCard>
   );
 }

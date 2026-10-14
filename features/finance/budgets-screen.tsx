@@ -87,13 +87,12 @@ function BudgetsContent() {
   return (
     <>
       <PageHeader
-        eyebrow="Ledger"
         title="Budgets"
         description="Monthly spending limits per expense category. Only expenses in the budget's currency count toward it."
       />
       <FinanceTabs />
 
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <MonthNavigator
           month={month}
           currentMonth={currentMonth}
@@ -110,7 +109,7 @@ function BudgetsContent() {
             onChange={setNewCurrency}
             options={CURRENCIES.map((currency) => ({ value: currency, label: currency }))}
           />
-          <Button variant="secondary" size="sm" className="h-9" onClick={handleCopy} loading={copy.isPending}>
+          <Button variant="secondary" size="sm" onClick={handleCopy} loading={copy.isPending}>
             {!copy.isPending ? <Copy aria-hidden="true" /> : null}
             Copy from {previousLabel}
           </Button>
@@ -119,7 +118,7 @@ function BudgetsContent() {
 
       {error ? <ErrorState message={toAppError(error).message} onRetry={() => void budgetsQuery.refetch()} /> : null}
 
-      <Panel title={`Expense categories · ${monthLabel}`} index="01">
+      <Panel title={`Expense categories · ${monthLabel}`}>
         {loading ? (
           <div className="grid gap-3">
             <Skeleton className="h-20" />
@@ -132,7 +131,7 @@ function BudgetsContent() {
             description="Create expense categories in Settings to set budgets."
           />
         ) : (
-          <ul className="divide-y divide-line">
+          <ul className="divide-y divide-border">
             {expenseCategories.map((category) => (
               <CategoryBudgetRow
                 key={category.id}
@@ -198,7 +197,7 @@ function ExistingBudget({ budget, categoryName, spentMinor }: { budget: Budget; 
   const usage = budgetUsage(budget.amountMinor, spentMinor);
 
   return (
-    <div className="grid gap-2 rounded-hud border border-line bg-base/40 p-3">
+    <div className="grid gap-2 rounded-lg bg-muted p-3">
       {editing ? (
         <BudgetAmountForm
           categoryId={budget.categoryId}
@@ -308,12 +307,12 @@ function BudgetAmountForm({
             inputMode="decimal"
             autoComplete="off"
             placeholder={initialMinor ? undefined : "Monthly limit"}
-            className="w-40 pr-12 font-mono"
+            className="w-40 pr-12 tabular-nums"
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? `${inputId}-error` : undefined}
             disabled={save.isPending}
           />
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-mono text-xs text-fg-subtle">
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-fg-subtle">
             {currency}
           </span>
         </div>

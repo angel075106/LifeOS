@@ -1,61 +1,174 @@
 @import "tailwindcss";
 
 /*
- * LifeOS HUD design tokens.
- * Contrast (on --color-panel): fg ~15:1, fg-muted ~7:1, fg-subtle ~4.8:1 (AA for body text).
+ * LifeOS design tokens.
+ *
+ * Two themes share one set of semantic names. Raw values live on :root (light) and
+ * [data-theme="dark"]; @theme inline maps them to Tailwind utilities (bg-surface,
+ * text-fg-muted, border-border …). The inline script in app/layout.tsx sets data-theme
+ * before the first paint, so there is no flash of the wrong theme.
+ *
+ * Contrast (WCAG 2.x), checked for both themes:
+ *   fg / fg-muted / fg-subtle on canvas, surface and muted fills   >= 4.5:1
+ *   accent-text, income, expense, warning text on surfaces and their soft fills >= 4.5:1
+ *   accent-fg on accent, white on danger                            >= 4.5:1
+ *   input borders and the focus ring against surfaces               >= 3:1
  * Semantic colors are always paired with an icon, sign or label - never color alone.
  */
-@theme {
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces: warm neutral off-white with white cards */
+  --canvas: #f6f6f4;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --muted: #f1f0ee;
+  --muted-strong: #e8e7e4;
+  --segment: #ffffff;
+  --border: #e6e5e1;
+  --border-strong: #d4d3ce;
+  --input: #8a8983;
+
+  /* Text */
+  --fg: #1c1b18;
+  --fg-muted: #5c5b56;
+  --fg-subtle: #6b6a64;
+
+  /* Accent: restrained indigo */
+  --accent: #5b5bd6;
+  --accent-hover: #4f4fc8;
+  --accent-fg: #ffffff;
+  --accent-soft: #eeeefc;
+  --accent-text: #4b48c0;
+  --focus: #5b5bd6;
+
+  /* Semantics (text tones; *-soft are tinted fills) */
+  --income: #1d7a4e;
+  --income-soft: #e7f5ec;
+  --expense: #c4343a;
+  --expense-soft: #fceced;
+  --warning: #9a5a00;
+  --warning-soft: #fdf3dc;
+  --danger: #c9353b;
+  --danger-hover: #b52e34;
+
+  /*
+   * Chart marks (filled bars/lines only). Validated with the dataviz palette checks on the
+   * light card surface #ffffff: lightness band, chroma, CVD (deutan dE 9.5), normal vision
+   * and >= 3:1 contrast all pass. Charts always sit on a card surface.
+   */
+  --chart-income: #16a970;
+  --chart-expense: #c93338;
+  --chart-accent: #5b5bd6;
+  --chart-grid: #ecebe8;
+
+  --scrim: rgb(28 27 24 / 0.32);
+  --shadow-color: 30 28 20;
+  --shadow-strength: 0.06;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces: graphite, lighter as they rise */
+  --canvas: #121214;
+  --surface: #19191c;
+  --surface-raised: #202024;
+  --muted: #1f1f23;
+  --muted-strong: #2a2a2f;
+  --segment: #2e2e34;
+  --border: #2a2a2f;
+  --border-strong: #3a3a41;
+  --input: #6a6a73;
+
+  --fg: #ededef;
+  --fg-muted: #a3a3ab;
+  --fg-subtle: #8a8a93;
+
+  --accent: #5b5bd6;
+  --accent-hover: #6767dc;
+  --accent-fg: #ffffff;
+  --accent-soft: #25254a;
+  --accent-text: #a5a4ff;
+  --focus: #8b8cf6;
+
+  --income: #4ccf8f;
+  --income-soft: #15301f;
+  --expense: #ff8a8a;
+  --expense-soft: #3a1d1f;
+  --warning: #f2b84b;
+  --warning-soft: #33280f;
+  --danger: #d4393f;
+  --danger-hover: #c3343a;
+
+  /* Validated on the dark card surface #19191c (deutan dE 9.6, all checks pass). */
+  --chart-income: #059669;
+  --chart-expense: #ef4444;
+  --chart-accent: #7b7ef0;
+  --chart-grid: #26262b;
+
+  --scrim: rgb(0 0 0 / 0.6);
+  --shadow-color: 0 0 0;
+  --shadow-strength: 0.35;
+}
+
+@theme inline {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
-  /* Surfaces: near-black navy -> dark slate */
-  --color-void: #04070d;
-  --color-base: #070c16;
-  --color-panel: #0b1322;
-  --color-panel-raised: #101a2d;
-  --color-panel-hover: #15213a;
-  --color-line: #1b2a44;
-  --color-line-strong: #2a3f64;
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-muted: var(--muted);
+  --color-muted-strong: var(--muted-strong);
+  --color-segment: var(--segment);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
 
-  /* Text */
-  --color-fg: #e6edf7;
-  --color-fg-muted: #93a4c0;
-  --color-fg-subtle: #7486a6;
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
 
-  /* Accents */
-  --color-cyan: #22d3ee;
-  --color-cyan-soft: #67e8f9;
-  --color-cyan-deep: #0e7490;
-  --color-electric: #3b82f6;
-  --color-electric-soft: #60a5fa;
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-focus: var(--focus);
 
-  /* Semantics */
-  --color-income: #34d399;
-  --color-income-deep: #065f46;
-  --color-warn: #fbbf24;
-  --color-warn-deep: #78350f;
-  --color-expense: #f87171;
-  --color-expense-deep: #7f1d1d;
-  --color-danger: #ef4444;
+  --color-income: var(--income);
+  --color-income-soft: var(--income-soft);
+  --color-expense: var(--expense);
+  --color-expense-soft: var(--expense-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
 
-  /*
-   * Chart marks. Validated with the dataviz palette checks against --color-panel (dark):
-   * lightness band, chroma, CVD separation (deutan dE 9.6), normal-vision and contrast all pass.
-   * UI text keeps the brighter income/expense tones above; these are for filled marks only.
-   */
-  --color-chart-income: #059669;
-  --color-chart-expense: #ef4444;
-  --color-chart-accent: #0891b2;
+  --color-chart-income: var(--chart-income);
+  --color-chart-expense: var(--chart-expense);
+  --color-chart-accent: var(--chart-accent);
+  --color-chart-grid: var(--chart-grid);
+  --color-scrim: var(--scrim);
 
-  --radius-hud: 0.375rem;
+  /* Soft, theme-aware elevation. */
+  --shadow-card: 0 1px 2px rgb(var(--shadow-color) / var(--shadow-strength));
+  --shadow-popover:
+    0 1px 2px rgb(var(--shadow-color) / var(--shadow-strength)),
+    0 8px 24px -4px rgb(var(--shadow-color) / calc(var(--shadow-strength) * 2));
+  --shadow-dialog:
+    0 2px 4px rgb(var(--shadow-color) / var(--shadow-strength)),
+    0 24px 48px -12px rgb(var(--shadow-color) / calc(var(--shadow-strength) * 3));
 
-  --animate-hud-fade: hud-fade 160ms ease-out;
-  --animate-hud-rise: hud-rise 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  --animate-hud-sheet: hud-sheet 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  --animate-hud-pulse: hud-pulse 2.4s ease-in-out infinite;
+  --animate-fade-in: fade-in 150ms ease-out;
+  --animate-scale-in: scale-in 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-sheet-in: sheet-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
 
-  @keyframes hud-fade {
+  @keyframes fade-in {
     from {
       opacity: 0;
     }
@@ -63,17 +176,17 @@
       opacity: 1;
     }
   }
-  @keyframes hud-rise {
+  @keyframes scale-in {
     from {
       opacity: 0;
-      transform: translateY(6px) scale(0.985);
+      transform: translateY(4px) scale(0.98);
     }
     to {
       opacity: 1;
       transform: none;
     }
   }
-  @keyframes hud-sheet {
+  @keyframes sheet-in {
     from {
       opacity: 0.6;
       transform: translateY(24px);
@@ -83,20 +196,10 @@
       transform: none;
     }
   }
-  @keyframes hud-pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.35;
-    }
-  }
 }
 
 @layer base {
   html {
-    color-scheme: dark;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
   }
@@ -104,41 +207,33 @@
   *,
   ::before,
   ::after {
-    border-color: var(--color-line);
+    border-color: var(--border);
+    /* Set up front so the focus ring appears in its color at once (transition-colors would
+       otherwise fade outline-color in from the text color). */
+    outline-color: var(--focus);
   }
 
   body {
     min-height: 100dvh;
-    background-color: var(--color-void);
-    background-image:
-      radial-gradient(1100px 520px at 8% -12%, rgb(34 211 238 / 0.07), transparent 62%),
-      radial-gradient(900px 480px at 108% 4%, rgb(59 130 246 / 0.07), transparent 60%),
-      linear-gradient(rgb(148 163 184 / 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(148 163 184 / 0.03) 1px, transparent 1px);
-    background-size:
-      auto,
-      auto,
-      32px 32px,
-      32px 32px;
-    color: var(--color-fg);
+    background-color: var(--canvas);
+    color: var(--fg);
     font-family: var(--font-sans);
-    font-feature-settings: "ss01", "cv11";
   }
 
   ::selection {
-    background: rgb(34 211 238 / 0.3);
-    color: var(--color-fg);
+    background: color-mix(in srgb, var(--accent) 24%, transparent);
+    color: var(--fg);
   }
 
-  /* One consistent, highly visible keyboard focus indicator. */
+  /* One consistent, clearly visible keyboard focus indicator. */
   :focus-visible {
-    outline: 2px solid var(--color-cyan);
+    outline: 2px solid var(--focus);
     outline-offset: 2px;
   }
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-line-strong) transparent;
+    scrollbar-color: var(--border-strong) transparent;
   }
 
   input,
@@ -148,58 +243,23 @@
     font: inherit;
   }
 
-  /* Native date/time pickers: light glyphs on the dark theme. */
+  /* Native date/time picker glyphs follow the theme. */
   input[type="date"]::-webkit-calendar-picker-indicator,
   input[type="time"]::-webkit-calendar-picker-indicator {
-    filter: invert(0.75);
     cursor: pointer;
+    opacity: 0.7;
   }
-}
+  [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+  [data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.85);
+  }
 
-/* Thin cyan corner brackets, the signature HUD panel detail. */
-@utility hud-corners {
-  --corner: rgb(34 211 238 / 0.55);
-  --corner-size: 10px;
-  background-image:
-    linear-gradient(var(--corner), var(--corner)), linear-gradient(var(--corner), var(--corner)),
-    linear-gradient(var(--corner), var(--corner)), linear-gradient(var(--corner), var(--corner)),
-    linear-gradient(var(--corner), var(--corner)), linear-gradient(var(--corner), var(--corner)),
-    linear-gradient(var(--corner), var(--corner)), linear-gradient(var(--corner), var(--corner));
-  background-size:
-    var(--corner-size) 1px,
-    1px var(--corner-size),
-    var(--corner-size) 1px,
-    1px var(--corner-size),
-    var(--corner-size) 1px,
-    1px var(--corner-size),
-    var(--corner-size) 1px,
-    1px var(--corner-size);
-  background-position:
-    top left,
-    top left,
-    top right,
-    top right,
-    bottom left,
-    bottom left,
-    bottom right,
-    bottom right;
-  background-repeat: no-repeat;
-}
-
-/* Small uppercase technical label. */
-@utility hud-label {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  line-height: 1rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-fg-muted);
-}
-
-@utility hud-glow {
-  box-shadow:
-    0 0 0 1px rgb(34 211 238 / 0.35),
-    0 0 18px -6px rgb(34 211 238 / 0.55);
+  /* Switching themes repaints everything at once instead of animating every color. */
+  [data-theme-switching] *,
+  [data-theme-switching] *::before,
+  [data-theme-switching] *::after {
+    transition: none !important;
+  }
 }
 
 @utility pb-safe {

@@ -88,7 +88,6 @@ function ActivitiesContent() {
   return (
     <>
       <PageHeader
-        eyebrow="Activity log"
         title="Activities"
         description="Everything you tracked, searchable and filterable."
         actions={
@@ -170,16 +169,16 @@ function ActivitiesContent() {
 
       <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm" aria-live="polite">
         <span className="text-fg-muted">
-          <span className="font-mono text-fg">{filtered.length}</span> {filtered.length === 1 ? "activity" : "activities"}
+          <span className="font-semibold tabular-nums text-fg">{filtered.length}</span> {filtered.length === 1 ? "activity" : "activities"}
         </span>
         <span className="text-fg-muted">
-          <span className="font-mono text-cyan-soft">{formatDuration(totalMinutes)}</span> tracked in this period
+          <span className="font-semibold tabular-nums text-fg">{formatDuration(totalMinutes)}</span> tracked in this period
         </span>
         {hasFilters ? (
           <button
             type="button"
             onClick={() => setParams({ q: null, category: null, status: null })}
-            className="inline-flex items-center gap-1 text-xs text-cyan underline-offset-4 hover:underline"
+            className="inline-flex items-center gap-1 text-xs font-medium text-accent-text underline-offset-4 hover:underline"
           >
             <X className="size-3" aria-hidden="true" />
             Clear filters
@@ -191,9 +190,9 @@ function ActivitiesContent() {
         <ErrorState message={toAppError(activitiesQuery.error).message} onRetry={() => void activitiesQuery.refetch()} />
       ) : loading && !activitiesQuery.data ? (
         <div className="grid gap-2">
-          <Skeleton className="h-16" />
-          <Skeleton className="h-16" />
-          <Skeleton className="h-16" />
+          <Skeleton className="h-14 rounded-xl" />
+          <Skeleton className="h-14 rounded-xl" />
+          <Skeleton className="h-14 rounded-xl" />
         </div>
       ) : groups.length === 0 ? (
         <EmptyState
@@ -214,18 +213,19 @@ function ActivitiesContent() {
           }
         />
       ) : (
-        <div className={loading ? "grid gap-5 opacity-60 transition-opacity" : "grid gap-5"} aria-busy={loading}>
+        <div className={loading ? "grid gap-6 opacity-60 transition-opacity" : "grid gap-6"} aria-busy={loading}>
           {shownGroups.map((group) => (
             <section key={group.date} aria-labelledby={`day-${group.date}`} className="grid gap-2">
-              <h2 id={`day-${group.date}`} className="hud-label flex items-center gap-2">
-                <span className={group.date === today ? "text-cyan" : undefined}>
+              <h2 id={`day-${group.date}`} className="flex items-center gap-2 px-1 text-[13px] font-semibold text-fg">
+                <span>
                   {formatLocalDate(group.date, { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
                 </span>
-                {group.date === today ? <span className="text-cyan">· today</span> : null}
-                <span className="h-px flex-1 bg-line" aria-hidden="true" />
-                <span>{group.items.length}</span>
+                {group.date === today ? <span className="text-xs font-medium text-accent-text">Today</span> : null}
+                <span className="ml-auto rounded-full bg-muted px-1.5 text-[11px] font-medium leading-5 tabular-nums text-fg-muted">
+                  {group.items.length}
+                </span>
               </h2>
-              <ul className="grid gap-1.5">
+              <ul className="grid gap-0.5 rounded-xl border border-border bg-surface p-1.5 shadow-card">
                 {group.items.map((activity) => (
                   <li key={activity.id}>
                     <ActivityRow

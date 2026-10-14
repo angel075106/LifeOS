@@ -6,9 +6,9 @@ export default function NotFound() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-6 px-4">
       <Wordmark />
-      <Panel title="Page not found" index="404">
+      <Panel title="Page not found">
         <p className="text-sm text-fg-muted">This page doesn&apos;t exist.</p>
-        <Link href="/calendar" className="mt-4 inline-block text-sm text-cyan underline-offset-4 hover:underline">
+        <Link href="/calendar" className="mt-4 inline-block text-sm font-medium text-accent-text underline-offset-4 hover:underline">
           Go to the calendar
         </Link>
       </Panel>

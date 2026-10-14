@@ -17,7 +17,7 @@ export function CategoryChip({
   return (
     <span className={cn("inline-flex min-w-0 items-center gap-1.5 text-xs text-fg-muted", className)}>
       <span
-        className="size-2 shrink-0 rounded-[2px] ring-1 ring-white/15"
+        className="size-2 shrink-0 rounded-full ring-1 ring-fg/10"
         style={{ backgroundColor: color }}
         aria-hidden="true"
       />
@@ -65,7 +65,7 @@ export function MoneyAmount({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 whitespace-nowrap font-mono tabular-nums",
+        "inline-flex items-center gap-1 whitespace-nowrap tabular-nums",
         direction > 0 && kind !== "plain" && "text-income",
         direction < 0 && kind !== "plain" && "text-expense",
         className,

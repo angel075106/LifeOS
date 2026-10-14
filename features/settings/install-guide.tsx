@@ -57,7 +57,7 @@ export function InstallGuide() {
 
       <section aria-labelledby="install-windows" className="grid gap-1.5">
         <h3 id="install-windows" className="flex items-center gap-2 font-medium text-fg">
-          <Monitor className="size-4 text-cyan" aria-hidden="true" />
+          <Monitor className="size-4 text-fg-muted" aria-hidden="true" />
           Windows (Edge or Chrome)
         </h3>
         <ol className="list-decimal space-y-1 pl-5 text-fg-muted">
@@ -72,7 +72,7 @@ export function InstallGuide() {
 
       <section aria-labelledby="install-iphone" className="grid gap-1.5">
         <h3 id="install-iphone" className="flex items-center gap-2 font-medium text-fg">
-          <Smartphone className="size-4 text-cyan" aria-hidden="true" />
+          <Smartphone className="size-4 text-fg-muted" aria-hidden="true" />
           iPhone (Safari)
         </h3>
         <ol className="list-decimal space-y-1 pl-5 text-fg-muted">
@@ -88,7 +88,7 @@ export function InstallGuide() {
         </ol>
       </section>
 
-      <section aria-labelledby="install-limits" className="grid gap-1.5 rounded-hud border border-line bg-base/40 p-3">
+      <section aria-labelledby="install-limits" className="grid gap-1.5 rounded-lg bg-muted p-3">
         <h3 id="install-limits" className="font-medium text-fg">
           What the installed app does — and doesn&apos;t
         </h3>

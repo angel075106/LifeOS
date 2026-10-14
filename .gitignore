@@ -25,7 +25,15 @@
 
 # misc
 .DS_Store
+
+# keys and certificates
 *.pem
+*.key
+*.p12
+*.pfx
+
+# local AI/editor tool settings
+/.claude/
 
 # debug
 npm-debug.log*

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownRight, ArrowUpRight, Clock } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { currenciesIn } from "@/features/finance/calc";
 import {
@@ -19,7 +19,9 @@ import { cn } from "@/lib/utils";
 import type { DaySummary } from "./day-index";
 import { compactMoney, describeDay } from "./day-labels";
 
-const MAX_CHIPS = 3;
+const MAX_LINES = 2;
+const MAX_DOTS = 4;
+const FALLBACK_COLOR = "var(--fg-subtle)";
 
 type MonthViewProps = {
   weeks: LocalDate[][];
@@ -101,27 +103,32 @@ export function MonthView({
         onSelect(target);
       }}
     >
-      <div role="row" className="grid grid-cols-7 border-b border-line">
+      <div role="row" className="grid grid-cols-7 border-b border-border">
         {weekdayNames.map((name) => (
           <div
             key={name.long}
             role="columnheader"
             aria-label={name.long}
-            className={cn("hud-label py-2 text-center", name.weekend && "text-fg-subtle")}
+            className={cn("py-2 text-center text-xs font-medium", name.weekend ? "text-fg-subtle" : "text-fg-muted")}
           >
             {name.short}
           </div>
         ))}
       </div>
       {weeks.map((week) => (
-        <div role="row" key={week[0]} className="grid grid-cols-7 border-b border-line last:border-b-0">
+        <div role="row" key={week[0]} className="grid grid-cols-7 border-b border-border last:border-b-0">
           {week.map((date) => {
             const summary = index.get(date);
             const inMonth = isSameMonth(date, anchor);
             const isToday = date === today;
             const isSelected = date === selected;
             return (
-              <div role="gridcell" key={date} aria-selected={isSelected} className="@container min-w-0 border-r border-line last:border-r-0">
+              <div
+                role="gridcell"
+                key={date}
+                aria-selected={isSelected}
+                className="@container min-w-0 border-r border-border last:border-r-0"
+              >
                 <button
                   type="button"
                   data-date={date}
@@ -130,12 +137,12 @@ export function MonthView({
                   aria-current={isToday ? "date" : undefined}
                   onClick={() => onSelect(date)}
                   className={cn(
-                    "relative flex h-full min-h-16 w-full flex-col gap-1 p-1 text-left transition-colors hover:bg-panel-hover/60 focus-visible:-outline-offset-2 sm:min-h-24 sm:p-1.5 lg:min-h-28",
-                    !inMonth && "bg-void/40",
-                    isSelected && "bg-cyan/[0.07] shadow-[inset_0_0_0_1px_rgb(34_211_238/0.55)]",
+                    "relative flex h-full min-h-[4.25rem] w-full flex-col gap-1 p-1 text-left transition-colors focus-visible:-outline-offset-2 sm:min-h-24 sm:p-1.5 lg:min-h-[6.5rem]",
+                    inMonth ? "hover:bg-muted/70" : "bg-muted/50 hover:bg-muted",
+                    isSelected && "bg-accent-soft/70 shadow-[inset_0_0_0_1.5px_var(--accent)] hover:bg-accent-soft",
                   )}
                 >
-                  <DayNumber date={date} inMonth={inMonth} isToday={isToday} />
+                  <DayNumber date={date} inMonth={inMonth} isToday={isToday} isSelected={isSelected} />
                   {summary ? <CellContent summary={summary} categories={categories} /> : null}
                 </button>
               </div>
@@ -147,20 +154,33 @@ export function MonthView({
   );
 }
 
-function DayNumber({ date, inMonth, isToday }: { date: LocalDate; inMonth: boolean; isToday: boolean }) {
+function DayNumber({
+  date,
+  inMonth,
+  isToday,
+  isSelected,
+}: {
+  date: LocalDate;
+  inMonth: boolean;
+  isToday: boolean;
+  isSelected: boolean;
+}) {
   const day = Number(date.slice(8, 10));
   return (
-    <span className="flex items-center justify-between" aria-hidden="true">
+    <span className="flex items-center gap-1.5" aria-hidden="true">
       <span
         className={cn(
-          "inline-flex size-6 items-center justify-center rounded-full font-mono text-xs tabular-nums",
-          inMonth ? "text-fg" : "text-fg-subtle",
-          isToday && "bg-cyan font-semibold text-void",
+          "inline-flex size-6 items-center justify-center rounded-full text-[13px] tabular-nums",
+          isToday
+            ? "bg-accent font-semibold text-accent-fg"
+            : cn(inMonth ? "text-fg" : "text-fg-subtle", isSelected && "font-semibold text-accent-text"),
         )}
       >
         {day}
       </span>
-      {isToday ? <span className="hidden font-mono text-[9px] tracking-[0.16em] text-cyan @[6.5rem]:inline">TODAY</span> : null}
+      {isToday ? (
+        <span className="hidden text-[11px] font-medium text-accent-text @[6.5rem]:inline">Today</span>
+      ) : null}
     </span>
   );
 }
@@ -170,59 +190,67 @@ function CellContent({ summary, categories }: { summary: DaySummary; categories:
   const hasActivities = summary.segments.length > 0;
   const income = currencies.filter((currency) => (summary.cashFlow[currency]?.income ?? 0) > 0);
   const expense = currencies.filter((currency) => (summary.cashFlow[currency]?.expense ?? 0) > 0);
-  const hidden = summary.segments.length - MAX_CHIPS;
+  const hidden = summary.segments.length - MAX_LINES;
 
   return (
     <span className="flex min-w-0 flex-1 flex-col gap-0.5" aria-hidden="true">
-      {/* Compact glyphs for narrow cells (phones). */}
-      <span className="flex flex-wrap items-center gap-1 @[5.5rem]:hidden">
+      {/* Narrow cells (phones): category dots, hours and money direction. */}
+      <span className="flex flex-col gap-1 @[5.5rem]:hidden">
         {hasActivities ? (
-          <span className="inline-flex items-center gap-0.5 font-mono text-[10px] text-cyan-soft">
-            <Clock className="size-2.5" />
-            {Math.round(summary.activityMinutes / 60) || "<1"}h
+          <span className="flex flex-wrap items-center gap-0.5 px-0.5">
+            {summary.segments.slice(0, MAX_DOTS).map((segment) => (
+              <span
+                key={`${segment.activity.id}:${segment.date}`}
+                className={cn(
+                  "size-1.5 rounded-full",
+                  segment.activity.status === "scheduled" && "bg-transparent ring-1 ring-current ring-inset",
+                )}
+                style={
+                  segment.activity.status === "scheduled"
+                    ? { color: categories.get(segment.activity.categoryId)?.color ?? FALLBACK_COLOR }
+                    : { backgroundColor: categories.get(segment.activity.categoryId)?.color ?? FALLBACK_COLOR }
+                }
+              />
+            ))}
           </span>
         ) : null}
-        {income.length > 0 ? <ArrowUpRight className="size-3 text-income" /> : null}
-        {expense.length > 0 ? <ArrowDownRight className="size-3 text-expense" /> : null}
+        <span className="flex flex-wrap items-center gap-x-1 px-0.5 text-[10px] leading-3 tabular-nums">
+          {hasActivities ? (
+            <span className="text-fg-muted">{Math.round(summary.activityMinutes / 60) || "<1"}h</span>
+          ) : null}
+          {income.length > 0 ? <ArrowUpRight className="size-3 text-income" /> : null}
+          {expense.length > 0 ? <ArrowDownRight className="size-3 text-expense" /> : null}
+        </span>
       </span>
 
-      {/* Detailed content for wider cells. */}
-      <span className="hidden min-w-0 flex-col gap-0.5 @[5.5rem]:flex">
-        {summary.segments.slice(0, MAX_CHIPS).map((segment) => {
-          const category = categories.get(segment.activity.categoryId);
+      {/* Wider cells: activity titles, then the day's totals. */}
+      <span className="hidden min-w-0 flex-1 flex-col gap-px @[5.5rem]:flex">
+        {summary.segments.slice(0, MAX_LINES).map((segment) => {
+          const color = categories.get(segment.activity.categoryId)?.color ?? FALLBACK_COLOR;
+          const scheduled = segment.activity.status === "scheduled";
           return (
             <span
               key={`${segment.activity.id}:${segment.date}`}
-              className={cn(
-                "flex min-w-0 items-center gap-1 rounded-[3px] border-l-2 px-1 py-px text-[11px] leading-4 text-fg",
-                segment.activity.status === "scheduled" && "border-dashed opacity-80",
-              )}
-              style={{
-                borderLeftColor: category?.color ?? "var(--color-fg-subtle)",
-                backgroundColor: `color-mix(in srgb, ${category?.color ?? "#94a3b8"} 14%, transparent)`,
-              }}
+              className="flex min-w-0 items-center gap-1.5 rounded px-1 text-[11px] leading-[1.125rem]"
             >
-              <span className="truncate">{segment.activity.title}</span>
+              <span
+                className={cn("size-1.5 shrink-0 rounded-full", scheduled && "ring-1 ring-current ring-inset")}
+                style={scheduled ? { color } : { backgroundColor: color }}
+              />
+              <span className={cn("truncate", scheduled ? "text-fg-muted" : "text-fg")}>{segment.activity.title}</span>
             </span>
           );
         })}
-        {hidden > 0 ? <span className="px-1 text-[10px] text-fg-muted">+{hidden} more</span> : null}
-        <span className="mt-auto flex flex-col gap-0.5 pt-0.5 font-mono text-[10px] leading-4">
-          {hasActivities ? (
-            <span className="inline-flex items-center gap-1 text-cyan-soft">
-              <Clock className="size-3 shrink-0" />
-              {formatDuration(summary.activityMinutes)}
-            </span>
-          ) : null}
+        {hidden > 0 ? <span className="px-1 text-[11px] leading-4 text-fg-subtle">+{hidden} more</span> : null}
+        <span className="mt-auto flex flex-wrap items-center gap-x-2 gap-y-0 px-1 pt-1 text-[11px] font-medium leading-4 tabular-nums">
+          {hasActivities ? <span className="text-fg-muted">{formatDuration(summary.activityMinutes)}</span> : null}
           {income.map((currency) => (
-            <span key={`in-${currency}`} className="inline-flex items-center gap-0.5 text-income">
-              <ArrowUpRight className="size-3 shrink-0" />+
-              {compactMoney(summary.cashFlow[currency]?.income ?? 0, currency)}
+            <span key={`in-${currency}`} className="text-income">
+              +{compactMoney(summary.cashFlow[currency]?.income ?? 0, currency)}
             </span>
           ))}
           {expense.map((currency) => (
-            <span key={`out-${currency}`} className="inline-flex items-center gap-0.5 text-expense">
-              <ArrowDownRight className="size-3 shrink-0" />
+            <span key={`out-${currency}`} className="text-expense">
               {"−"}
               {compactMoney(summary.cashFlow[currency]?.expense ?? 0, currency)}
             </span>

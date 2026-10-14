@@ -5,7 +5,8 @@
  * a page cannot be loaded. It never caches pages, API responses or Supabase traffic, so no
  * private data is stored by the service worker (and nothing lingers after sign-out).
  */
-const VERSION = "v1";
+// Bumped when precached files change (v2: redesigned offline page and icons).
+const VERSION = "v2";
 const STATIC_CACHE = `lifeos-static-${VERSION}`;
 const OFFLINE_URL = "/offline.html";
 const PRECACHE = [OFFLINE_URL, "/icons/icon-192.png"];

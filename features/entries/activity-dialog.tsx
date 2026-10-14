@@ -101,7 +101,6 @@ export function ActivityDialog({ state, onClose }: { state: ActivityDialogState 
       {state ? (
         <DialogContent
           title={title}
-          eyebrow={state.mode === "edit" ? "Activity log" : "New entry"}
           description="Times use your profile time zone."
           busy={busy}
         >
@@ -322,19 +321,19 @@ function ActivityForm({
           </Field>
         </div>
 
-        <p className="-mt-1 font-mono text-xs" aria-live="polite">
+        <p className="-mt-1 text-xs tabular-nums" aria-live="polite">
           {durationLabel === null ? (
             <span className="text-fg-subtle">Duration: enter a start and end time</span>
           ) : "error" in durationLabel ? (
-            <span className="text-warn">{durationLabel.error}</span>
+            <span className="text-warning">{durationLabel.error}</span>
           ) : (
-            <span className="text-cyan-soft">Duration {durationLabel.duration}</span>
+            <span className="font-medium text-fg">Duration {durationLabel.duration}</span>
           )}
           <span className="text-fg-subtle"> · {timezone}</span>
         </p>
 
         <div className="grid gap-1.5">
-          <span className="text-xs font-medium tracking-wide text-fg-muted" id="activity-status-label">
+          <span className="text-[13px] font-medium text-fg" id="activity-status-label">
             Status
           </span>
           <SegmentedControl
@@ -355,8 +354,8 @@ function ActivityForm({
       </fieldset>
 
       {overlaps ? (
-        <div role="alert" className="grid gap-3 rounded-lg border border-warn/40 bg-warn/5 p-3">
-          <p className="flex items-center gap-2 text-sm font-medium text-warn">
+        <div role="alert" className="grid gap-3 rounded-lg border border-warning/30 bg-warning-soft p-3">
+          <p className="flex items-center gap-2 text-sm font-medium text-warning">
             <AlertTriangle className="size-4" aria-hidden="true" />
             Overlaps with {overlaps.length} {overlaps.length === 1 ? "activity" : "activities"}
           </p>
@@ -365,7 +364,7 @@ function ActivityForm({
               const category = categoryMap.get(overlap.categoryId);
               return (
                 <li key={overlap.id} className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                  <span className="font-mono text-fg-muted">
+                  <span className="tabular-nums text-fg-muted">
                     {localDateOfInstant(overlap.startMs, timezone) !== startDate
                       ? `${localDateOfInstant(overlap.startMs, timezone)} `
                       : ""}
@@ -379,7 +378,7 @@ function ActivityForm({
           </ul>
           <p className="text-xs text-fg-muted">Overlaps are allowed when intended, e.g. a call during a commute.</p>
           <div className="flex flex-wrap justify-end gap-2">
-            <Button type="button" variant="ghost" size="sm" onClick={() => setOverlaps(null)} disabled={saving}>
+            <Button type="button" variant="secondary" size="sm" onClick={() => setOverlaps(null)} disabled={saving}>
               Go back
             </Button>
             <Button
@@ -397,11 +396,11 @@ function ActivityForm({
 
       <FormError message={formError} />
       {!online ? (
-        <p className="text-xs text-warn">You appear to be offline. Saving needs a connection.</p>
+        <p className="text-xs text-warning">You appear to be offline. Saving needs a connection.</p>
       ) : null}
 
       {!overlaps ? (
-        <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:items-center">
+        <div className="-mx-5 flex flex-col-reverse gap-2 border-t border-border px-5 pt-4 sm:flex-row sm:items-center">
           {state.mode === "edit" ? (
             <Button
               type="button"
@@ -414,7 +413,7 @@ function ActivityForm({
               Delete
             </Button>
           ) : null}
-          <Button type="submit" variant="solid" size="lg" loading={saving} className="sm:ml-auto sm:min-w-32">
+          <Button type="submit" variant="primary" loading={saving} className="sm:ml-auto sm:min-w-32">
             {state.mode === "edit" ? "Save changes" : "Save activity"}
           </Button>
         </div>

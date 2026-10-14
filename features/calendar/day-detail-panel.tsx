@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity as ActivityIcon, ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { Activity as ActivityIcon, ArrowDownRight, ArrowUpRight, Wallet } from "lucide-react";
 import { MoneyAmount } from "@/components/domain/display";
 import { ActivityRow, TransactionRow } from "@/components/domain/entry-rows";
 import { Badge } from "@/components/ui/badge";
@@ -45,30 +45,35 @@ export function DayDetailPanel({
 }: DayDetailPanelProps) {
   const currencies = summary ? currenciesIn(summary.cashFlow) : [];
   const heading = formatLocalDate(date, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const incomeCurrencies = currencies.filter((c) => (summary?.cashFlow[c]?.income ?? 0) > 0);
+  const expenseCurrencies = currencies.filter((c) => (summary?.cashFlow[c]?.expense ?? 0) > 0);
+  const activityCount = summary?.segments.length ?? 0;
+  const transactionCount = summary?.transactions.length ?? 0;
 
   return (
     <Panel
       title={<span aria-live="polite">{heading}</span>}
-      index="02"
-      actions={date === today ? <Badge variant="cyan">Today</Badge> : null}
+      actions={date === today ? <Badge variant="accent">Today</Badge> : null}
       aria-label={`Details for ${heading}`}
     >
-      <div className="grid gap-5">
-        {/* Totals */}
-        <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line">
+      <div className="grid gap-4">
+        {/* Day totals */}
+        <dl className="grid grid-cols-2 gap-2">
           <Stat label="Time tracked">
             {loading && !summary ? (
               <Skeleton className="h-6 w-16" />
             ) : (
-              <span className="font-mono text-lg text-cyan-soft">{formatDuration(summary?.activityMinutes ?? 0)}</span>
+              <span className="text-base font-semibold tabular-nums text-fg">
+                {formatDuration(summary?.activityMinutes ?? 0)}
+              </span>
             )}
-            <span className="text-xs text-fg-subtle">
-              {summary?.segments.length ?? 0} {summary?.segments.length === 1 ? "activity" : "activities"}
+            <span className="text-xs text-fg-muted">
+              {activityCount} {activityCount === 1 ? "activity" : "activities"}
             </span>
           </Stat>
           <Stat label="Net cash flow">
             {currencies.length === 0 ? (
-              <span className="font-mono text-lg text-fg-subtle">—</span>
+              <span className="text-base font-semibold text-fg-subtle">—</span>
             ) : (
               currencies.map((currency) => (
                 <MoneyAmount
@@ -76,47 +81,55 @@ export function DayDetailPanel({
                   minor={summary?.cashFlow[currency]?.net ?? 0}
                   currency={currency}
                   kind="net"
-                  className="text-base"
+                  className="text-base font-semibold"
                 />
               ))
             )}
-            <span className="text-xs text-fg-subtle">income − expenses</span>
+            <span className="text-xs text-fg-muted">income − expenses</span>
           </Stat>
           <Stat label="Income">
-            {currencies.filter((c) => (summary?.cashFlow[c]?.income ?? 0) > 0).length === 0 ? (
-              <span className="font-mono text-sm text-fg-subtle">None</span>
+            {incomeCurrencies.length === 0 ? (
+              <span className="text-sm text-fg-subtle">None</span>
             ) : (
-              currencies.map((currency) =>
-                (summary?.cashFlow[currency]?.income ?? 0) > 0 ? (
-                  <MoneyAmount key={currency} minor={summary?.cashFlow[currency]?.income ?? 0} currency={currency} kind="income" />
-                ) : null,
-              )
+              incomeCurrencies.map((currency) => (
+                <MoneyAmount
+                  key={currency}
+                  minor={summary?.cashFlow[currency]?.income ?? 0}
+                  currency={currency}
+                  kind="income"
+                  className="text-sm font-semibold"
+                />
+              ))
             )}
           </Stat>
           <Stat label="Expenses">
-            {currencies.filter((c) => (summary?.cashFlow[c]?.expense ?? 0) > 0).length === 0 ? (
-              <span className="font-mono text-sm text-fg-subtle">None</span>
+            {expenseCurrencies.length === 0 ? (
+              <span className="text-sm text-fg-subtle">None</span>
             ) : (
-              currencies.map((currency) =>
-                (summary?.cashFlow[currency]?.expense ?? 0) > 0 ? (
-                  <MoneyAmount key={currency} minor={summary?.cashFlow[currency]?.expense ?? 0} currency={currency} kind="expense" />
-                ) : null,
-              )
+              expenseCurrencies.map((currency) => (
+                <MoneyAmount
+                  key={currency}
+                  minor={summary?.cashFlow[currency]?.expense ?? 0}
+                  currency={currency}
+                  kind="expense"
+                  className="text-sm font-semibold"
+                />
+              ))
             )}
           </Stat>
         </dl>
 
         {/* Quick add for this date */}
         <div className="grid grid-cols-3 gap-2">
-          <Button variant="primary" size="sm" className="h-10" onClick={onAddActivity}>
+          <Button variant="soft" size="sm" className="h-9" onClick={onAddActivity}>
             <ActivityIcon aria-hidden="true" />
             Activity
           </Button>
-          <Button variant="income" size="sm" className="h-10" onClick={() => onAddTransaction("income")}>
+          <Button variant="income" size="sm" className="h-9" onClick={() => onAddTransaction("income")}>
             <ArrowUpRight aria-hidden="true" />
             Income
           </Button>
-          <Button variant="expense" size="sm" className="h-10" onClick={() => onAddTransaction("expense")}>
+          <Button variant="expense" size="sm" className="h-9" onClick={() => onAddTransaction("expense")}>
             <ArrowDownRight aria-hidden="true" />
             Expense
           </Button>
@@ -125,21 +138,19 @@ export function DayDetailPanel({
         {error ? <ErrorState message={error} onRetry={onRetry} /> : null}
 
         {/* Activities */}
-        <section aria-labelledby="day-activities-heading" className="grid gap-2">
-          <h3 id="day-activities-heading" className="hud-label flex items-center justify-between">
-            <span>Activities</span>
-            <span>{summary?.segments.length ?? 0}</span>
-          </h3>
+        <section aria-labelledby="day-activities-heading" className="grid gap-1">
+          <SectionHeading id="day-activities-heading" label="Activities" count={activityCount} />
           {loading && !summary ? (
             <ListSkeleton />
           ) : !summary || summary.segments.length === 0 ? (
             <EmptyState
+              className="py-5"
               icon={<ActivityIcon aria-hidden="true" />}
               title="No activities logged"
               description="Track what you did and how long it took."
             />
           ) : (
-            <ol className="grid max-h-[22rem] gap-1.5 overflow-y-auto pr-1">
+            <ol className="-mx-2.5 grid max-h-[20rem] overflow-y-auto">
               {summary.segments.map((segment) => (
                 <li key={`${segment.activity.id}:${segment.date}`}>
                   <ActivityRow
@@ -149,6 +160,7 @@ export function DayDetailPanel({
                     onOpen={onOpenActivity}
                     continuesBefore={segment.continuesBefore}
                     continuesAfter={segment.continuesAfter}
+                    compact
                   />
                 </li>
               ))}
@@ -157,27 +169,26 @@ export function DayDetailPanel({
         </section>
 
         {/* Transactions */}
-        <section aria-labelledby="day-transactions-heading" className="grid gap-2">
-          <h3 id="day-transactions-heading" className="hud-label flex items-center justify-between">
-            <span>Transactions</span>
-            <span>{summary?.transactions.length ?? 0}</span>
-          </h3>
+        <section aria-labelledby="day-transactions-heading" className="grid gap-1">
+          <SectionHeading id="day-transactions-heading" label="Transactions" count={transactionCount} />
           {loading && !summary ? (
             <ListSkeleton />
           ) : !summary || summary.transactions.length === 0 ? (
             <EmptyState
-              icon={<ArrowUpRight aria-hidden="true" />}
+              className="py-5"
+              icon={<Wallet aria-hidden="true" />}
               title="No income or expenses"
               description="Record money in and out for this day."
             />
           ) : (
-            <ul className="grid max-h-[22rem] gap-1.5 overflow-y-auto pr-1">
+            <ul className="-mx-2.5 grid max-h-[20rem] overflow-y-auto">
               {summary.transactions.map((transaction) => (
                 <li key={transaction.id}>
                   <TransactionRow
                     transaction={transaction}
                     category={financeCategories.get(transaction.categoryId)}
                     onOpen={onOpenTransaction}
+                    compact
                   />
                 </li>
               ))}
@@ -189,10 +200,21 @@ export function DayDetailPanel({
   );
 }
 
+function SectionHeading({ id, label, count }: { id: string; label: string; count: number }) {
+  return (
+    <h3 id={id} className="flex items-center gap-2 text-[13px] font-semibold text-fg">
+      {label}
+      <span className="rounded-full bg-muted px-1.5 text-[11px] font-medium leading-5 tabular-nums text-fg-muted">
+        {count}
+      </span>
+    </h3>
+  );
+}
+
 function Stat({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex min-w-0 flex-col gap-1 bg-panel px-3 py-2.5">
-      <dt className="hud-label">{label}</dt>
+    <div className="flex min-w-0 flex-col gap-0.5 rounded-lg bg-muted px-3 py-2">
+      <dt className="text-xs font-medium text-fg-muted">{label}</dt>
       <dd className="flex min-w-0 flex-col gap-0.5">{children}</dd>
     </div>
   );
@@ -200,9 +222,9 @@ function Stat({ label, children }: { label: string; children: React.ReactNode })
 
 function ListSkeleton() {
   return (
-    <div className="grid gap-1.5">
-      <Skeleton className="h-14" />
-      <Skeleton className="h-14" />
+    <div className="grid gap-1.5" aria-hidden="true">
+      <Skeleton className="h-8" />
+      <Skeleton className="h-8" />
     </div>
   );
 }

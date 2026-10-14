@@ -92,7 +92,6 @@ function TransactionsContent() {
   return (
     <>
       <PageHeader
-        eyebrow="Ledger"
         title="Transactions"
         description="Search and filter every income and expense entry."
         actions={
@@ -197,7 +196,7 @@ function TransactionsContent() {
       {/* Exact totals for everything matching the filters, per currency */}
       <div className="mb-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm" aria-live="polite">
         <span className="text-fg-muted">
-          <span className="font-mono text-fg">{filtered.length}</span> {filtered.length === 1 ? "transaction" : "transactions"}
+          <span className="font-semibold tabular-nums text-fg">{filtered.length}</span> {filtered.length === 1 ? "transaction" : "transactions"}
         </span>
         {currenciesIn(totals).map((code) => {
           const flow = totals[code];
@@ -216,7 +215,7 @@ function TransactionsContent() {
           <button
             type="button"
             onClick={clearFilters}
-            className="inline-flex items-center gap-1 text-xs text-cyan underline-offset-4 hover:underline"
+            className="inline-flex items-center gap-1 text-xs font-medium text-accent-text underline-offset-4 hover:underline"
           >
             <X className="size-3" aria-hidden="true" />
             Clear filters
@@ -228,9 +227,9 @@ function TransactionsContent() {
         <ErrorState message={toAppError(transactionsQuery.error).message} onRetry={() => void transactionsQuery.refetch()} />
       ) : loading && !transactionsQuery.data ? (
         <div className="grid gap-2">
-          <Skeleton className="h-14" />
-          <Skeleton className="h-14" />
-          <Skeleton className="h-14" />
+          <Skeleton className="h-14 rounded-xl" />
+          <Skeleton className="h-14 rounded-xl" />
+          <Skeleton className="h-14 rounded-xl" />
         </div>
       ) : groups.length === 0 ? (
         <EmptyState
@@ -246,17 +245,19 @@ function TransactionsContent() {
           }
         />
       ) : (
-        <div className={loading ? "grid gap-5 opacity-60 transition-opacity" : "grid gap-5"} aria-busy={loading}>
+        <div className={loading ? "grid gap-6 opacity-60 transition-opacity" : "grid gap-6"} aria-busy={loading}>
           {shownGroups.map((group) => (
             <section key={group.date} aria-labelledby={`tx-day-${group.date}`} className="grid gap-2">
-              <h2 id={`tx-day-${group.date}`} className="hud-label flex items-center gap-2">
-                <span className={group.date === today ? "text-cyan" : undefined}>
+              <h2 id={`tx-day-${group.date}`} className="flex items-center gap-2 px-1 text-[13px] font-semibold text-fg">
+                <span>
                   {formatLocalDate(group.date, { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
                 </span>
-                <span className="h-px flex-1 bg-line" aria-hidden="true" />
-                <span>{group.items.length}</span>
+                {group.date === today ? <span className="text-xs font-medium text-accent-text">Today</span> : null}
+                <span className="ml-auto rounded-full bg-muted px-1.5 text-[11px] font-medium leading-5 tabular-nums text-fg-muted">
+                  {group.items.length}
+                </span>
               </h2>
-              <ul className="grid gap-1.5">
+              <ul className="grid gap-0.5 rounded-xl border border-border bg-surface p-1.5 shadow-card">
                 {group.items.map((transaction) => (
                   <li key={transaction.id}>
                     <TransactionRow

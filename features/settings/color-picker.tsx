@@ -33,12 +33,12 @@ export function ColorPicker({
               disabled={disabled}
               onClick={() => onChange(color)}
               className={cn(
-                "flex size-7 items-center justify-center rounded-full ring-1 ring-white/15 transition-transform hover:scale-110 disabled:opacity-50",
-                selected && "ring-2 ring-fg",
+                "flex size-7 items-center justify-center rounded-full ring-1 ring-fg/10 transition-transform hover:scale-110 disabled:opacity-50",
+                selected && "ring-2 ring-fg ring-offset-2 ring-offset-surface-raised",
               )}
               style={{ backgroundColor: color }}
             >
-              {selected ? <Check className="size-3.5 text-void" aria-hidden="true" /> : null}
+              {selected ? <Check className="size-3.5 text-black/80" aria-hidden="true" /> : null}
             </button>
           );
         })}
@@ -46,11 +46,11 @@ export function ColorPicker({
       <label
         htmlFor={id}
         className={cn(
-          "relative inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-full border border-line-strong px-2 text-xs text-fg-muted hover:text-fg",
+          "relative inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-full border border-border-strong px-2.5 text-xs font-medium text-fg-muted transition-colors hover:text-fg has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-focus",
           isCustom && "border-fg text-fg",
         )}
       >
-        <span className="size-3.5 rounded-full ring-1 ring-white/20" style={{ backgroundColor: value }} aria-hidden="true" />
+        <span className="size-3.5 rounded-full ring-1 ring-fg/10" style={{ backgroundColor: value }} aria-hidden="true" />
         Custom
         <input
           id={id}

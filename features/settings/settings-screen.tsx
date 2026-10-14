@@ -6,6 +6,7 @@ import { Download, KeyRound, LogOut, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { ThemeSelector } from "@/components/theme/theme-selector";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Skeleton } from "@/components/ui/feedback";
@@ -40,31 +41,34 @@ import { profileFormSchema, type ProfileFormValues, type ProfileInput } from "./
 
 export function SettingsScreen() {
   const hydrated = useHydrated();
-  if (!hydrated) return <Skeleton className="h-[70dvh]" />;
+  if (!hydrated) return <Skeleton className="h-[70dvh] rounded-xl" />;
   return <SettingsContent />;
 }
 
 function SettingsContent() {
   return (
     <>
-      <PageHeader eyebrow="System" title="Settings" description="Preferences, categories, data export and account." />
-      <div className="grid gap-4 xl:grid-cols-2">
-        <Panel title="Preferences" index="01" id="preferences">
+      <PageHeader title="Settings" description="Appearance, preferences, categories, data export and account." />
+      <div className="grid max-w-3xl gap-5">
+        <Panel title="Appearance" id="appearance">
+          <ThemeSelector />
+        </Panel>
+        <Panel title="Preferences" id="preferences">
           <PreferencesForm />
         </Panel>
-        <Panel title="Account" index="02" id="account">
-          <AccountSection />
-        </Panel>
-        <Panel title="Activity categories" index="03" id="activity-categories">
+        <Panel title="Activity categories" id="activity-categories">
           <ActivityCategories />
         </Panel>
-        <Panel title="Finance categories" index="04" id="finance-categories">
+        <Panel title="Finance categories" id="finance-categories">
           <FinanceCategories />
         </Panel>
-        <Panel title="Export data" index="05" id="export">
+        <Panel title="Export data" id="export">
           <ExportSection />
         </Panel>
-        <Panel title="Install LifeOS" index="06" id="install">
+        <Panel title="Account" id="account">
+          <AccountSection />
+        </Panel>
+        <Panel title="Install LifeOS" id="install">
           <InstallGuide />
         </Panel>
       </div>
@@ -178,7 +182,7 @@ function PreferencesForm() {
           <button
             type="button"
             onClick={() => setValue("timezone", device, { shouldDirty: true, shouldValidate: true })}
-            className="inline-flex items-center gap-1.5 justify-self-start text-xs text-cyan underline-offset-4 hover:underline"
+            className="inline-flex items-center gap-1.5 justify-self-start text-xs font-medium text-accent-text underline-offset-4 hover:underline"
           >
             <MapPin className="size-3.5" aria-hidden="true" />
             Use this device&apos;s time zone ({device.replace(/_/g, " ")})
@@ -234,7 +238,7 @@ function FinanceCategories() {
     };
     return (
       <section aria-labelledby={`finance-${kind}-heading`} className="grid gap-2">
-        <h3 id={`finance-${kind}-heading`} className="hud-label">
+        <h3 id={`finance-${kind}-heading`} className="text-[13px] font-semibold text-fg">
           {kind === "income" ? "Income" : "Expenses"}
         </h3>
         <CategoryManager
@@ -283,7 +287,7 @@ function ExportSection() {
           <Input id="export-to" type="date" value={to} onChange={(event) => setTo(event.target.value)} className="w-40" />
         </div>
       </div>
-      {!valid ? <p className="text-xs text-warn">Choose a start date on or before the end date.</p> : null}
+      {!valid ? <p className="text-xs text-warning">Choose a start date on or before the end date.</p> : null}
       <div className="flex flex-wrap gap-2">
         <a
           href={`/api/export/transactions${query}`}
@@ -316,7 +320,7 @@ function AccountSection() {
   return (
     <div className="grid gap-4">
       <dl className="grid gap-1">
-        <dt className="hud-label">Signed in as</dt>
+        <dt className="text-xs font-medium text-fg-muted">Signed in as</dt>
         <dd className="break-all text-sm text-fg">{email ?? "Unknown"}</dd>
       </dl>
       <div className="flex flex-wrap gap-2">

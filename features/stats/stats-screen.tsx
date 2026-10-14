@@ -123,10 +123,10 @@ function StatsContent() {
 
   return (
     <>
-      <PageHeader eyebrow="Analysis" title="Statistics" description={`Based on your saved records · ${periodLabel}`} />
+      <PageHeader title="Statistics" description={`Based on your saved records · ${periodLabel}`} />
 
       {/* One filter row scopes every chart below. */}
-      <Panel padding="sm" className="mb-4">
+      <Panel padding="sm" className="mb-6">
         <div className="flex flex-wrap items-end gap-3">
           <RangePicker
             idPrefix="stats"
@@ -155,7 +155,7 @@ function StatsContent() {
           </div>
           {currencies.length > 1 ? (
             <div className="grid gap-1.5">
-              <span className="text-xs font-medium tracking-wide text-fg-muted">Currency</span>
+              <span className="text-[13px] font-medium text-fg">Currency</span>
               <SegmentedControl<Currency>
                 label="Finance currency"
                 value={currency}
@@ -166,41 +166,42 @@ function StatsContent() {
           ) : null}
         </div>
         {tooLong ? (
-          <p role="status" className="mt-2 text-xs text-warn">
+          <p role="status" className="mt-2 text-xs text-warning">
             That range is longer than 3 years; showing this year instead.
           </p>
         ) : null}
       </Panel>
 
       {/* Activity */}
-      <section aria-labelledby="stats-activity" className="mb-6 grid gap-4">
-        <h2 id="stats-activity" className="hud-label">
+      <section aria-labelledby="stats-activity" className="mb-8 grid gap-4">
+        <h2 id="stats-activity" className="text-base font-semibold tracking-tight text-fg">
           Activity{categoryId ? ` · ${activityCategories.get(categoryId)?.name ?? ""}` : ""}
         </h2>
         {activitiesQuery.error ? (
           <ErrorState message={toAppError(activitiesQuery.error).message} onRetry={() => void activitiesQuery.refetch()} />
         ) : activitiesLoading && !activitiesQuery.data ? (
-          <Skeleton className="h-64" />
+          <Skeleton className="h-64 rounded-xl" />
         ) : totals.minutes === 0 ? (
           <EmptyState icon={<BarChart3 aria-hidden="true" />} title="No tracked time in this period" description="Activities you log appear here." />
         ) : (
           <>
-            <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line md:grid-cols-4">
+            <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">
               <Kpi label="Time tracked" value={formatDuration(totals.minutes)} />
               <Kpi label="Activities" value={String(totals.activities)} />
               <Kpi label="Daily average" value={formatDuration(totals.minutes / elapsedDays)} hint={`over ${elapsedDays} ${elapsedDays === 1 ? "day" : "days"}`} />
               <Kpi label="Active days" value={String(totals.activeDays)} />
             </dl>
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-              <Panel title={`Tracked time ${granularityLabel}`} index="01">
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+              <Panel title={`Tracked time ${granularityLabel}`}>
                 <DurationChart
                   data={timeBuckets}
                   busy={activitiesLoading}
+                  hideTitle
                   title={`Tracked time ${granularityLabel}`}
                   description="Activities crossing midnight count toward each day they cover."
                 />
               </Panel>
-              <Panel title="Time by category" index="02">
+              <Panel title="Time by category">
                 <BarList
                   title="Share of tracked time"
                   emptyLabel="No tracked time."
@@ -224,52 +225,53 @@ function StatsContent() {
 
       {/* Finance */}
       <section aria-labelledby="stats-finance" className="grid gap-4">
-        <h2 id="stats-finance" className="hud-label">
+        <h2 id="stats-finance" className="text-base font-semibold tracking-tight text-fg">
           Finance · {currency}
         </h2>
         {transactionsQuery.error ? (
           <ErrorState message={toAppError(transactionsQuery.error).message} onRetry={() => void transactionsQuery.refetch()} />
         ) : financeLoading && !transactionsQuery.data ? (
-          <Skeleton className="h-64" />
+          <Skeleton className="h-64 rounded-xl" />
         ) : currencies.length === 0 ? (
           <EmptyState icon={<BarChart3 aria-hidden="true" />} title="No transactions in this period" description="Income and expenses you record appear here." />
         ) : (
           <>
-            <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line md:grid-cols-4">
-              <div className="flex flex-col gap-1 bg-panel px-4 py-3">
-                <dt className="hud-label">Income</dt>
+            <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div className="flex min-w-0 flex-col gap-1 rounded-xl border border-border bg-surface px-4 py-3 shadow-card">
+                <dt className="text-xs font-medium text-fg-muted">Income</dt>
                 <dd>
-                  <MoneyAmount minor={cash[currency]?.income ?? 0} currency={currency} kind="income" className="text-lg" />
+                  <MoneyAmount minor={cash[currency]?.income ?? 0} currency={currency} kind="income" className="text-xl font-semibold tracking-tight" />
                 </dd>
               </div>
-              <div className="flex flex-col gap-1 bg-panel px-4 py-3">
-                <dt className="hud-label">Expenses</dt>
+              <div className="flex min-w-0 flex-col gap-1 rounded-xl border border-border bg-surface px-4 py-3 shadow-card">
+                <dt className="text-xs font-medium text-fg-muted">Expenses</dt>
                 <dd>
-                  <MoneyAmount minor={cash[currency]?.expense ?? 0} currency={currency} kind="expense" className="text-lg" />
+                  <MoneyAmount minor={cash[currency]?.expense ?? 0} currency={currency} kind="expense" className="text-xl font-semibold tracking-tight" />
                 </dd>
               </div>
-              <div className="flex flex-col gap-1 bg-panel px-4 py-3">
-                <dt className="hud-label">Net cash flow</dt>
+              <div className="flex min-w-0 flex-col gap-1 rounded-xl border border-border bg-surface px-4 py-3 shadow-card">
+                <dt className="text-xs font-medium text-fg-muted">Net cash flow</dt>
                 <dd>
-                  <MoneyAmount minor={cash[currency]?.net ?? 0} currency={currency} kind="net" className="text-lg" />
+                  <MoneyAmount minor={cash[currency]?.net ?? 0} currency={currency} kind="net" className="text-xl font-semibold tracking-tight" />
                 </dd>
               </div>
               <Kpi label="Transactions" value={String(cash[currency]?.count ?? 0)} />
             </dl>
-            <div className="grid gap-4 xl:grid-cols-2">
-              <Panel title={`Income vs expenses ${granularityLabel}`} index="03">
-                <IncomeExpenseChart data={flowPoints} currency={currency} busy={financeLoading} title={`Income vs expenses ${granularityLabel}`} />
+            <div className="grid gap-5 xl:grid-cols-2">
+              <Panel title={`Income vs expenses ${granularityLabel}`}>
+                <IncomeExpenseChart data={flowPoints} currency={currency} busy={financeLoading} hideTitle title={`Income vs expenses ${granularityLabel}`} />
               </Panel>
-              <Panel title={`Net cash flow ${granularityLabel}`} index="04">
+              <Panel title={`Net cash flow ${granularityLabel}`}>
                 <NetFlowChart
                   data={flowPoints}
                   currency={currency}
                   busy={financeLoading}
+                  hideTitle
                   title={`Net cash flow ${granularityLabel}`}
                   description="Income minus expenses in each period. Not an account balance."
                 />
               </Panel>
-              <Panel title="Spending by category" index="05">
+              <Panel title="Spending by category">
                 <BarList
                   title={`Expenses · ${currency}`}
                   emptyLabel="No expenses in this currency."
@@ -286,7 +288,7 @@ function StatsContent() {
                   })}
                 />
               </Panel>
-              <Panel title="Budget utilization" index="06">
+              <Panel title="Budget utilization">
                 {budgetLines.length === 0 ? (
                   <p className="text-xs text-fg-subtle">No {currency} budgets in these months.</p>
                 ) : (
@@ -327,9 +329,9 @@ function eachDayCount(from: LocalDate, to: LocalDate): number {
 
 function Kpi({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="flex min-w-0 flex-col gap-1 bg-panel px-4 py-3">
-      <dt className="hud-label">{label}</dt>
-      <dd className="text-lg font-semibold text-fg">
+    <div className="flex min-w-0 flex-col gap-1 rounded-xl border border-border bg-surface px-4 py-3 shadow-card">
+      <dt className="text-xs font-medium text-fg-muted">{label}</dt>
+      <dd className="text-xl font-semibold tracking-tight tabular-nums text-fg">
         {value}
         {hint ? <span className="ml-1.5 text-xs font-normal text-fg-subtle">{hint}</span> : null}
       </dd>

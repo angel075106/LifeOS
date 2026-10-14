@@ -3,16 +3,17 @@ import type * as React from "react";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center gap-1 whitespace-nowrap rounded-[3px] border px-1.5 py-px font-mono text-[10px] font-medium uppercase tracking-[0.12em] [&_svg]:size-3",
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-md border px-1.5 py-px text-[11px] font-medium leading-4 [&_svg]:size-3",
   {
     variants: {
       variant: {
-        neutral: "border-line-strong bg-panel-raised text-fg-muted",
-        cyan: "border-cyan/40 bg-cyan/10 text-cyan-soft",
-        income: "border-income/40 bg-income/10 text-income",
-        expense: "border-expense/40 bg-expense/10 text-expense",
-        warn: "border-warn/40 bg-warn/10 text-warn",
-        scheduled: "border-dashed border-electric-soft/60 bg-electric/10 text-electric-soft",
+        neutral: "border-transparent bg-muted text-fg-muted",
+        accent: "border-transparent bg-accent-soft text-accent-text",
+        income: "border-transparent bg-income-soft text-income",
+        expense: "border-transparent bg-expense-soft text-expense",
+        warn: "border-transparent bg-warning-soft text-warning",
+        /** Planned (not yet done) activities: dashed outline instead of a fill. */
+        scheduled: "border-dashed border-accent/60 bg-transparent text-accent-text",
       },
     },
     defaultVariants: { variant: "neutral" },

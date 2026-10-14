@@ -75,10 +75,7 @@ function ToastView({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: num
     <div
       role={toast.tone === "error" ? "alert" : "status"}
       className={cn(
-        "pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border bg-panel-raised/95 px-3.5 py-3 shadow-xl shadow-black/50 backdrop-blur data-[state=open]:animate-hud-rise",
-        toast.tone === "success" && "border-income/40",
-        toast.tone === "error" && "border-expense/50",
-        toast.tone === "info" && "border-cyan/40",
+        "pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border border-border bg-surface-raised px-3.5 py-3 shadow-popover data-[state=open]:animate-scale-in",
       )}
       data-state="open"
     >
@@ -87,7 +84,7 @@ function ToastView({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: num
           "mt-0.5 size-4 shrink-0",
           toast.tone === "success" && "text-income",
           toast.tone === "error" && "text-expense",
-          toast.tone === "info" && "text-cyan",
+          toast.tone === "info" && "text-accent-text",
         )}
         aria-hidden="true"
       />
@@ -98,7 +95,7 @@ function ToastView({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: num
       <button
         type="button"
         onClick={() => onDismiss(toast.id)}
-        className="-mr-1 -mt-1 inline-flex size-7 items-center justify-center rounded-hud text-fg-muted hover:bg-panel-hover hover:text-fg"
+        className="-mr-1 -mt-1 inline-flex size-7 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-muted hover:text-fg"
         aria-label="Dismiss notification"
       >
         <X className="size-3.5" aria-hidden="true" />

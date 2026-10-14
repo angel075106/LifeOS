@@ -1,4 +1,6 @@
+import { networkInterfaces } from "node:os";
 import type { NextConfig } from "next";
+import { devAllowedOrigins } from "./lib/dev-origins";
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -54,6 +56,10 @@ const nextConfig: NextConfig = {
   logging: { serverFunctions: false },
   // The dev-tools badge would sit on top of the phone tab bar; errors are still surfaced.
   devIndicators: false,
+  // Dev only: lets a phone on the same network use the dev server through this computer's
+  // network address. Without it, Next.js blocks hot reload for that host, the page never
+  // starts its JavaScript, and forms such as "Sign in" just reload the page.
+  allowedDevOrigins: isDev ? devAllowedOrigins(networkInterfaces(), process.env.LIFEOS_DEV_ORIGINS) : undefined,
   async headers() {
     return [
       { source: "/(.*)", headers: securityHeaders },

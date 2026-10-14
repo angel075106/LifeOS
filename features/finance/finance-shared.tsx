@@ -16,7 +16,7 @@ const TABS = [
 export function FinanceTabs() {
   const pathname = usePathname();
   return (
-    <nav aria-label="Finance sections" className="mb-4 flex gap-1 overflow-x-auto shadow-[inset_0_-1px_0_var(--color-line)]">
+    <nav aria-label="Finance sections" className="mb-5 flex gap-1 overflow-x-auto shadow-[inset_0_-1px_0_var(--border)]">
       {TABS.map((tab) => {
         const active = pathname === tab.href;
         return (
@@ -25,8 +25,8 @@ export function FinanceTabs() {
             href={tab.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "whitespace-nowrap border-b-2 px-3 py-2 text-sm transition-colors",
-              active ? "border-cyan text-fg" : "border-transparent text-fg-muted hover:text-fg",
+              "whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium transition-colors",
+              active ? "border-accent text-fg" : "border-transparent text-fg-muted hover:border-border-strong hover:text-fg",
             )}
           >
             {tab.label}
@@ -53,19 +53,41 @@ export function MonthNavigator({
   onChange: (month: LocalDate) => void;
 }) {
   return (
-    <div className="flex items-center gap-1">
-      <Button variant="ghost" size="icon" onClick={() => onChange(addMonths(month, -1))} aria-label="Previous month">
-        <ChevronLeft aria-hidden="true" />
-      </Button>
-      <p className="min-w-36 text-center text-base font-semibold text-fg" aria-live="polite">
+    <div className="flex flex-wrap items-center gap-3">
+      <p className="min-w-32 text-base font-semibold tracking-tight text-fg" aria-live="polite">
         {formatLocalDate(month, { month: "long", year: "numeric" })}
       </p>
-      <Button variant="ghost" size="icon" onClick={() => onChange(addMonths(month, 1))} aria-label="Next month">
-        <ChevronRight aria-hidden="true" />
-      </Button>
-      <Button variant="secondary" size="sm" className="h-9" onClick={() => onChange(currentMonth)} disabled={month === currentMonth}>
-        This month
-      </Button>
+      <div className="flex items-center rounded-lg border border-border-strong bg-surface shadow-card">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="rounded-r-none"
+          onClick={() => onChange(addMonths(month, -1))}
+          aria-label="Previous month"
+        >
+          <ChevronLeft aria-hidden="true" />
+        </Button>
+        <span className="h-5 w-px bg-border" aria-hidden="true" />
+        <Button
+          variant="ghost"
+          size="sm"
+          className="rounded-none px-3 text-fg"
+          onClick={() => onChange(currentMonth)}
+          disabled={month === currentMonth}
+        >
+          This month
+        </Button>
+        <span className="h-5 w-px bg-border" aria-hidden="true" />
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="rounded-l-none"
+          onClick={() => onChange(addMonths(month, 1))}
+          aria-label="Next month"
+        >
+          <ChevronRight aria-hidden="true" />
+        </Button>
+      </div>
     </div>
   );
 }

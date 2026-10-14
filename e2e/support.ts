@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import { readPublicSupabaseConfig } from "../lib/env";
 
 /*
  * Shared settings and helpers for the browser tests.
@@ -10,7 +11,7 @@ import { expect, type Page } from "@playwright/test";
 export const isRemote = Boolean(process.env.E2E_BASE_URL);
 
 export const supabaseUrl = isRemote
-  ? (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "")
+  ? (readPublicSupabaseConfig(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)?.url ?? "")
   : `http://127.0.0.1:${process.env.LOCAL_SUPABASE_PORT ?? "54331"}`;
 
 export const supabaseKey = isRemote

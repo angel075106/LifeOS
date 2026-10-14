@@ -16,7 +16,7 @@ function trackErrors(page: Page): string[] {
 const SCREENS = [
   { link: "Activities", path: "/activities", heading: "Activities" },
   { link: "Finance", path: "/finance", heading: "Finance" },
-  { link: "Stats", path: "/stats", heading: "Statistics" },
+  { link: "Statistics", path: "/stats", heading: "Statistics" },
   { link: "Settings", path: "/settings", heading: "Settings" },
 ] as const;
 

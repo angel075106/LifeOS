@@ -14,7 +14,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
 
   return (
     <div className="mx-auto max-w-lg py-10">
-      <Panel title="Something went wrong" actions={<TriangleAlert className="size-4 text-warn" aria-hidden="true" />}>
+      <Panel title="Something went wrong" actions={<TriangleAlert className="size-4 text-warning" aria-hidden="true" />}>
         <div className="grid gap-4 text-sm text-fg-muted">
           <p>This screen couldn&apos;t be displayed. Your saved data is not affected.</p>
           {error.digest ? <p className="font-mono text-xs text-fg-subtle">Reference: {error.digest}</p> : null}
@@ -23,7 +23,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
               Try again
             </Button>
             {/* A full page load (not client navigation) to recover from a broken client state. */}
-            <a href="/calendar" className={buttonVariants({ variant: "ghost" })}>
+            <a href="/calendar" className={buttonVariants({ variant: "secondary" })}>
               Go to calendar
             </a>
           </div>

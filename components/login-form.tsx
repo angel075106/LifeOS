@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { ConfigMissingNotice, authErrorMessage, isSupabaseConfigured } from "@/components/auth/auth-shared";
+import { AuthCard, ConfigMissingNotice, authErrorMessage, isSupabaseConfigured } from "@/components/auth/auth-shared";
 import { Button } from "@/components/ui/button";
 import { Field, FormError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Panel } from "@/components/ui/panel";
 import { safeRedirectPath } from "@/lib/safe-redirect";
 import { createClient } from "@/lib/supabase/client";
 
@@ -38,7 +37,7 @@ export function LoginForm() {
   };
 
   return (
-    <Panel title="Sign in" index="01">
+    <AuthCard title="Sign in">
       <form onSubmit={handleLogin} className="grid gap-4">
         <Field id="email" label="Email" required>
           {(control) => (
@@ -66,18 +65,18 @@ export function LoginForm() {
           )}
         </Field>
         <FormError message={error} />
-        <Button type="submit" variant="solid" size="lg" loading={isLoading} className="w-full">
+        <Button type="submit" variant="primary" size="lg" loading={isLoading} className="w-full">
           {isLoading ? "Signing in…" : "Sign in"}
         </Button>
         <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
           <Link href="/auth/forgot-password" className="text-fg-muted underline-offset-4 hover:text-fg hover:underline">
             Forgot password?
           </Link>
-          <Link href="/auth/sign-up" className="text-cyan underline-offset-4 hover:underline">
+          <Link href="/auth/sign-up" className="font-medium text-accent-text underline-offset-4 hover:underline">
             Create an account
           </Link>
         </div>
       </form>
-    </Panel>
+    </AuthCard>
   );
 }

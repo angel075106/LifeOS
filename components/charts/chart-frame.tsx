@@ -12,7 +12,7 @@ export function ChartLegend({ items }: { items: LegendItem[] }) {
     <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-fg-muted" aria-label="Legend">
       {items.map((item) => (
         <li key={item.label} className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-3 rounded-[2px]" style={{ backgroundColor: item.color }} aria-hidden="true" />
+          <span className="size-2.5 rounded-[3px]" style={{ backgroundColor: item.color }} aria-hidden="true" />
           {item.label}
         </li>
       ))}
@@ -28,25 +28,27 @@ type ChartFrameProps = {
   table: React.ReactNode;
   /** Data is refreshing: keep the previous render, dimmed (no skeleton flash). */
   busy?: boolean;
+  /** The surrounding card already shows this title: keep it for screen readers only. */
+  hideTitle?: boolean;
   children: React.ReactNode;
   className?: string;
 };
 
 /** Chart wrapper: caption, legend, and a toggle to a data table view. */
-export function ChartFrame({ title, description, legend, table, busy, children, className }: ChartFrameProps) {
+export function ChartFrame({ title, description, legend, table, busy, hideTitle, children, className }: ChartFrameProps) {
   const [showTable, setShowTable] = useState(false);
   return (
     <figure className={cn("grid min-w-0 gap-3", className)} aria-busy={busy}>
       <div className="flex items-start gap-3">
         <figcaption className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-fg">{title}</p>
+          <p className={hideTitle ? "sr-only" : "text-sm font-medium text-fg"}>{title}</p>
           {description ? <p className="mt-0.5 text-xs text-fg-muted">{description}</p> : null}
         </figcaption>
         <button
           type="button"
           onClick={() => setShowTable((value) => !value)}
           aria-pressed={showTable}
-          className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-hud border border-line-strong px-2.5 text-xs text-fg-muted transition-colors hover:bg-panel-hover hover:text-fg"
+          className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-border-strong bg-surface px-2.5 text-xs font-medium text-fg-muted transition-colors hover:bg-muted hover:text-fg"
         >
           {showTable ? <BarChart3 className="size-3.5" aria-hidden="true" /> : <Table2 className="size-3.5" aria-hidden="true" />}
           {showTable ? "Chart" : "Table"}
@@ -69,10 +71,10 @@ export function ChartTable({
   rows: Array<{ key: string; cells: React.ReactNode[] }>;
 }) {
   return (
-    <div className="max-h-72 overflow-auto rounded-hud border border-line">
+    <div className="max-h-72 overflow-auto rounded-lg border border-border">
       <table className="w-full text-left text-xs">
         <caption className="sr-only">{caption}</caption>
-        <thead className="sticky top-0 bg-panel-raised">
+        <thead className="sticky top-0 bg-muted">
           <tr>
             {columns.map((column, index) => (
               <th key={column} scope="col" className={cn("px-3 py-2 font-medium text-fg-muted", index > 0 && "text-right")}>
@@ -83,11 +85,11 @@ export function ChartTable({
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.key} className="border-t border-line">
+            <tr key={row.key} className="border-t border-border">
               {row.cells.map((cell, index) => (
                 <td
                   key={index}
-                  className={cn("px-3 py-1.5 text-fg", index > 0 && "text-right font-mono tabular-nums")}
+                  className={cn("px-3 py-1.5 text-fg", index > 0 && "text-right tabular-nums")}
                 >
                   {cell}
                 </td>

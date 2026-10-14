@@ -4,7 +4,6 @@ import { CalendarDays, ChevronLeft, ChevronRight, Columns3, Square } from "lucid
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/feedback";
-import { Panel } from "@/components/ui/panel";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { useProfile } from "@/features/app/session";
 import { useHydrated } from "@/features/app/sync-store";
@@ -22,7 +21,10 @@ import { buildDayIndex } from "./day-index";
 import { DayDetailPanel } from "./day-detail-panel";
 import { MonthView } from "./month-view";
 import { TimeGridView } from "./time-grid-view";
+import { UpcomingPanel } from "./upcoming-panel";
 import { useCalendarState } from "./use-calendar-state";
+
+const LAYOUT = "grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(21rem,24rem)]";
 
 export function CalendarScreen() {
   // Dates depend on the device clock and time zone: render after hydration only.
@@ -66,33 +68,55 @@ function CalendarContent() {
   const stepLabel = view === "month" ? "month" : view === "week" ? "week" : "day";
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,26rem)]">
-      <Panel padding="none" className="min-w-0" aria-labelledby="calendar-title">
-        <div className="flex flex-wrap items-center gap-2 border-b border-line px-3 py-2.5 sm:px-4">
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={() => step(-1)} aria-label={`Previous ${stepLabel}`}>
+    <div className="grid gap-4">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
+        <div className="min-w-0 basis-full sm:basis-0 sm:flex-1">
+          <h1
+            id="calendar-title"
+            className="truncate text-xl font-semibold tracking-tight text-fg md:text-2xl"
+            aria-live="polite"
+          >
+            {title}
+          </h1>
+          <p className="mt-0.5 text-sm text-fg-muted">
+            Today is {formatLocalDate(today, { weekday: "long", day: "numeric", month: "long" })}
+          </p>
+        </div>
+        <div className="flex w-full items-center justify-between gap-2 sm:w-auto">
+          <div className="flex items-center rounded-lg border border-border-strong bg-surface shadow-card">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="rounded-r-none"
+              onClick={() => step(-1)}
+              aria-label={`Previous ${stepLabel}`}
+            >
               <ChevronLeft aria-hidden="true" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => step(1)} aria-label={`Next ${stepLabel}`}>
-              <ChevronRight aria-hidden="true" />
-            </Button>
+            <span className="h-5 w-px bg-border" aria-hidden="true" />
             <Button
-              variant="secondary"
+              variant="ghost"
               size="sm"
-              className="h-9"
+              className="rounded-none px-3 text-fg"
               onClick={() => navigate({ date: today })}
               disabled={date === today}
             >
               Today
             </Button>
+            <span className="h-5 w-px bg-border" aria-hidden="true" />
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="rounded-l-none"
+              onClick={() => step(1)}
+              aria-label={`Next ${stepLabel}`}
+            >
+              <ChevronRight aria-hidden="true" />
+            </Button>
           </div>
-          <h1 id="calendar-title" className="order-first w-full text-lg font-semibold text-fg sm:order-none sm:w-auto sm:px-2" aria-live="polite">
-            {title}
-          </h1>
           <SegmentedControl<CalendarView>
             label="Calendar view"
             size="sm"
-            className="ml-auto"
             compactOnMobile
             value={view}
             onChange={(next) => navigate({ view: next })}
@@ -103,67 +127,94 @@ function CalendarContent() {
             ]}
           />
         </div>
+      </div>
 
-        {view === "month" ? (
-          <MonthView
-            weeks={weeks}
-            anchor={date}
-            selected={date}
+      <div className={LAYOUT}>
+        <section
+          aria-labelledby="calendar-title"
+          className="min-w-0 self-start overflow-hidden rounded-xl border border-border bg-surface shadow-card"
+        >
+          {view === "month" ? (
+            <MonthView
+              weeks={weeks}
+              anchor={date}
+              selected={date}
+              today={today}
+              weekStartsOn={profile.weekStartsOn}
+              index={index}
+              categories={activityCategories}
+              loading={loading}
+              onSelect={(next) => navigate({ date: next })}
+              labelledBy="calendar-title"
+            />
+          ) : (
+            <TimeGridView
+              days={days}
+              selected={date}
+              today={today}
+              now={now}
+              timeZone={timezone}
+              index={index}
+              categories={activityCategories}
+              loading={loading}
+              onSelectDay={(next) => navigate({ date: next })}
+              onOpenActivity={(activity) => openActivity({ mode: "edit", activity })}
+              onCreateAt={(day, minute) => {
+                navigate({ date: day });
+                openActivity({ mode: "create", date: day, startMinute: minute });
+              }}
+            />
+          )}
+        </section>
+
+        <div className="grid min-w-0 content-start gap-5">
+          <DayDetailPanel
+            date={date}
             today={today}
-            weekStartsOn={profile.weekStartsOn}
-            index={index}
-            categories={activityCategories}
+            summary={index.get(date)}
+            timeZone={timezone}
+            activityCategories={activityCategories}
+            financeCategories={financeCategories}
             loading={loading}
-            onSelect={(next) => navigate({ date: next })}
-            labelledBy="calendar-title"
+            error={queryError ? toAppError(queryError).message : null}
+            onRetry={() => {
+              void activitiesQuery.refetch();
+              void transactionsQuery.refetch();
+            }}
+            onAddActivity={() => openActivity({ mode: "create", date })}
+            onAddTransaction={(type) => openTransaction({ mode: "create", date, type })}
+            onOpenActivity={(activity) => openActivity({ mode: "edit", activity })}
+            onOpenTransaction={(transaction) => openTransaction({ mode: "edit", transaction })}
           />
-        ) : (
-          <TimeGridView
-            days={days}
-            selected={date}
+          <UpcomingPanel
             today={today}
             now={now}
             timeZone={timezone}
-            index={index}
             categories={activityCategories}
-            loading={loading}
-            onSelectDay={(next) => navigate({ date: next })}
+            onSelectDay={(day) => navigate({ date: day })}
             onOpenActivity={(activity) => openActivity({ mode: "edit", activity })}
-            onCreateAt={(day, minute) => {
-              navigate({ date: day });
-              openActivity({ mode: "create", date: day, startMinute: minute });
-            }}
+            onPlan={() => openActivity({ mode: "create", date: today })}
           />
-        )}
-      </Panel>
-
-      <DayDetailPanel
-        date={date}
-        today={today}
-        summary={index.get(date)}
-        timeZone={timezone}
-        activityCategories={activityCategories}
-        financeCategories={financeCategories}
-        loading={loading}
-        error={queryError ? toAppError(queryError).message : null}
-        onRetry={() => {
-          void activitiesQuery.refetch();
-          void transactionsQuery.refetch();
-        }}
-        onAddActivity={() => openActivity({ mode: "create", date })}
-        onAddTransaction={(type) => openTransaction({ mode: "create", date, type })}
-        onOpenActivity={(activity) => openActivity({ mode: "edit", activity })}
-        onOpenTransaction={(transaction) => openTransaction({ mode: "edit", transaction })}
-      />
+        </div>
+      </div>
     </div>
   );
 }
 
 function CalendarSkeleton() {
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,26rem)]" aria-busy="true">
-      <Skeleton className="h-[70dvh]" />
-      <Skeleton className="h-[50dvh]" />
+    <div className="grid gap-4" aria-busy="true">
+      <div className="flex items-center gap-3">
+        <div className="grid flex-1 gap-2">
+          <Skeleton className="h-7 w-48 rounded-lg" />
+          <Skeleton className="h-4 w-56" />
+        </div>
+        <Skeleton className="h-8 w-56 rounded-lg" />
+      </div>
+      <div className={LAYOUT}>
+        <Skeleton className="h-[70dvh] rounded-xl" />
+        <Skeleton className="h-[50dvh] rounded-xl" />
+      </div>
     </div>
   );
 }

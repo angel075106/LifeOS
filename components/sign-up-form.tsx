@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
+  AuthCard,
   ConfigMissingNotice,
   PASSWORD_MIN_LENGTH,
   authErrorMessage,
@@ -12,7 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Field, FormError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Panel } from "@/components/ui/panel";
 import { deviceTimeZone } from "@/lib/dates";
 import { createClient } from "@/lib/supabase/client";
 
@@ -65,7 +65,7 @@ export function SignUpForm() {
   };
 
   return (
-    <Panel title="Create account" index="01">
+    <AuthCard title="Create account">
       <form onSubmit={handleSignUp} className="grid gap-4">
         <Field id="email" label="Email" required>
           {(control) => (
@@ -106,16 +106,16 @@ export function SignUpForm() {
           )}
         </Field>
         <FormError message={error} />
-        <Button type="submit" variant="solid" size="lg" loading={isLoading} className="w-full">
+        <Button type="submit" variant="primary" size="lg" loading={isLoading} className="w-full">
           {isLoading ? "Creating account…" : "Create account"}
         </Button>
         <p className="text-center text-sm text-fg-muted">
           Already have an account?{" "}
-          <Link href="/auth/login" className="text-cyan underline-offset-4 hover:underline">
+          <Link href="/auth/login" className="font-medium text-accent-text underline-offset-4 hover:underline">
             Sign in
           </Link>
         </p>
       </form>
-    </Panel>
+    </AuthCard>
   );
 }

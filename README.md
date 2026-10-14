@@ -32,11 +32,14 @@ cookie-based Supabase Auth integration.
 **Calendar (home screen)**
 - Month, week and day views; previous/next and **Today**; the view and date live in the URL
   (`/calendar?view=week&date=2026-10-14`), so reloads and bookmarks keep your place.
-- Each day shows tracked time (clock icon), income (`+`, up arrow) and expenses (`−`, down arrow).
-  Narrow phone cells switch to compact glyphs; every cell has a full spoken description.
+- Today is marked with a filled circle; each day lists its first activities (category dot +
+  title, hollow dot when scheduled), tracked time, income (`+`) and expenses (`−`). Narrow phone
+  cells switch to category dots, hours and up/down arrows; every cell has a full spoken description.
 - Day panel: totals (time, income, expenses, net cash flow per currency), quick-add buttons, a
-  chronological activity list and the day's transactions. Activities crossing midnight appear on
+  compact chronological agenda and the day's transactions. Activities crossing midnight appear on
   both days with "from previous day"/"continues" markers.
+- Upcoming: what is happening now ("Now, until 12:30") and the next activities of the coming
+  7 days, each one click away from editing or from its day in the calendar.
 - Week/day time grid: overlapping activities sit side by side, scheduled entries are dashed and
   labeled, a "now" line marks the current time, and clicking an empty slot starts a new entry.
 - Keyboard: arrow keys, Home/End and PageUp/PageDown move through the month grid.
@@ -64,7 +67,8 @@ cookie-based Supabase Auth integration.
 cash flow, spending by category and budget utilization for any period, computed from your saved
 records. Every chart has a table view.
 
-**Settings** — display name, default currency, time zone (with "use this device's time zone"),
+**Settings** — appearance (Light, Dark or System theme, saved on this device and applied before
+the first paint, also switchable from the sidebar/header theme menu), display name, default currency, time zone (with "use this device's time zone"),
 default calendar view, week start, activity & finance category management, CSV export
 (transactions and activities, formula-injection safe), password change, sign out (this device
 or everywhere), install instructions.
@@ -80,7 +84,8 @@ app/                      Next.js App Router
   auth/                   starter auth pages (restyled) + /auth/confirm, /auth/callback
   api/export/*            CSV route handlers (session-checked, no-store)
   manifest.ts             web app manifest
-components/ui             design system (HUD theme): buttons, inputs, dialogs, panels, toasts…
+components/ui             design system: buttons, inputs, dialogs, cards, menus, toasts…
+components/theme          light/dark/system theme: pre-paint script, controller, selector, menu
 components/charts         Recharts wrappers + accessible bar lists, meters, table views
 features/<area>/          screens, Server Actions (*/actions.ts), Zod schemas, pure logic
 lib/                      money, dates/time zones, CSV, errors, env, Supabase clients, data access
@@ -114,6 +119,16 @@ tests/db, **/*.test.ts    Vitest unit + database tests;  e2e/  Playwright browse
   plain calendar `date`, so they never shift between days.
 - **Money**: `bigint` minor units in the database, safe integers in TypeScript, string-based
   parsing and exact `Intl` formatting — no floating-point value is ever the source of truth.
+- **Design system**: semantic color tokens in `app/globals.css` (`canvas`, `surface`, `muted`,
+  `border`, `fg`/`fg-muted`/`fg-subtle`, `accent`, `income`, `expense`, `warning`, `danger`,
+  `chart-*`) with light values on `:root` and dark values on `[data-theme="dark"]`. Components
+  use only these tokens (e.g. `bg-surface`, `text-fg-muted`, `dark:` for rare exceptions). Text
+  pairs meet WCAG AA (4.5:1), form borders and the focus ring 3:1; chart colors pass the
+  palette checks (lightness, chroma, color-vision-deficiency separation, contrast) in both themes.
+- **Theme**: the choice (`light`/`dark`/`system`) is stored per device in `localStorage`
+  (`lifeos-theme`). A small inline script in `<head>` (`lib/theme.ts`) sets
+  `<html data-theme>` before the body is parsed, so there is no flash of the wrong theme;
+  `ThemeSync` keeps it in sync with OS changes and other tabs.
 
 ---
 
@@ -154,6 +169,19 @@ testing only — see [its limitations](#known-limitations).
    npm run dev
    ```
 4. Open http://localhost:3000 and sign up.
+
+### Open the dev server on your phone
+
+1. Only one dev server can run in this folder. Stop `npm run dev:local` first. A second server
+   prints "Another next dev server is already running" and exits, and port 3000 keeps serving
+   the emulator, which your phone cannot reach.
+2. Run `npm run dev` (it already listens on your network) and open the **Network** address it
+   prints (e.g. `http://192.168.1.18:3000`) in Safari on the same Wi-Fi.
+3. The dev server accepts this computer's own network addresses automatically. Other host
+   names (e.g. `my-pc.local`) need `LIFEOS_DEV_ORIGINS` in `.env.local`; without it the page
+   loads but its buttons do nothing.
+4. For sign-up and password-reset emails sent from the phone, add
+   `http://<that address>:3000/**` to the Supabase Redirect URLs (see below).
 
 ### Production build locally
 
@@ -322,7 +350,8 @@ npm run verify      # lint + typecheck + unit/db tests + production build
   Realtime authorization policy — and that `rls_verification.sql` detects broken policies.
 - **Browser tests** (`e2e/`): sign-in, create & edit an activity, income, create & delete an
   expense, correct calendar dates, persistence after reload, overlap warning, validation,
-  unauthorized access (two users, UI + Data API + CSV), PWA/security headers and phone layouts.
+  unauthorized access (two users, UI + Data API + CSV), PWA/security headers, phone layouts and
+  the theme (saved choice applied before paint, System following the OS, keyboard selection).
   - Default: runs against the **local emulator** with a fresh in-memory database, using the
     installed Microsoft Edge (no browser download).
   - Against your **real Supabase project** (recommended before relying on it): create two
@@ -368,6 +397,10 @@ requires the Node.js runtime, not Edge).
   a development/test tool — always verify against a real Supabase project before production use.
 - **CSP** allows inline scripts (`'unsafe-inline'`) because nonce-based CSP would disable static
   prerendering; it still blocks framing, plugins, foreign form targets and unknown network origins.
+- **Open investigation**: once, in the dev server inside an embedded browser pane, opening
+  `/stats` ended up on `/calendar`. It has not been reproduced since a hydration fix, and the cause
+  is unconfirmed. Details, hypotheses and reproduction steps:
+  [docs/investigations/stats-navigation.md](docs/investigations/stats-navigation.md).
 - **Account deletion** is not built into the UI; delete the user in the Supabase dashboard
   (*Authentication → Users*), which removes all their LifeOS data via cascades.
 - **Type definitions** in `lib/supabase/database.types.ts` are hand-written in the generated

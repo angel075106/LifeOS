@@ -44,11 +44,7 @@ export function SegmentedControl<T extends string>({
   }
 
   return (
-    <div
-      role="radiogroup"
-      aria-label={label}
-      className={cn("inline-flex rounded-hud border border-line-strong bg-base/70 p-0.5", className)}
-    >
+    <div role="radiogroup" aria-label={label} className={cn("inline-flex gap-0.5 rounded-lg bg-muted-strong/60 p-0.5", className)}>
       {options.map((option, index) => {
         const selected = option.value === value;
         return (
@@ -73,9 +69,9 @@ export function SegmentedControl<T extends string>({
               }
             }}
             className={cn(
-              "inline-flex flex-1 items-center justify-center gap-1.5 rounded-[calc(var(--radius-hud)-2px)] font-medium text-fg-muted transition-colors hover:text-fg disabled:opacity-50 [&_svg]:size-3.5",
-              size === "sm" ? "h-7 px-2.5 text-xs" : "h-9 px-3.5 text-sm",
-              selected && "bg-cyan/12 text-cyan-soft shadow-[inset_0_0_0_1px_rgb(34_211_238/0.45)]",
+              "inline-flex flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent font-medium text-fg-muted transition-colors hover:text-fg disabled:opacity-50 [&_svg]:size-3.5",
+              size === "sm" ? "h-7 px-2.5 text-xs" : "h-9 px-3 text-sm md:h-8",
+              selected && "border-border-strong bg-segment text-fg shadow-card",
               selected && option.activeClassName,
             )}
           >

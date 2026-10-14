@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 
 type PanelProps = Omit<React.ComponentProps<"section">, "title"> & {
   title?: React.ReactNode;
-  /** Two-digit mono index shown before the title, e.g. "01". */
-  index?: string;
+  /** Short supporting text under the title. */
+  description?: React.ReactNode;
   /** Controls rendered on the right side of the header. */
   actions?: React.ReactNode;
   /** Padding inside the body. Defaults to "md". */
@@ -12,10 +12,10 @@ type PanelProps = Omit<React.ComponentProps<"section">, "title"> & {
   headingLevel?: "h2" | "h3";
 };
 
-/** Dark slate surface with thin technical border and corner brackets. */
+/** Card surface: the basic container for every section of a screen. */
 export function Panel({
   title,
-  index,
+  description,
   actions,
   padding = "md",
   headingLevel: Heading = "h2",
@@ -25,16 +25,16 @@ export function Panel({
 }: PanelProps) {
   return (
     <section
-      className={cn("hud-corners relative min-w-0 rounded-lg border border-line bg-panel/85 backdrop-blur-sm", className)}
+      className={cn("relative min-w-0 rounded-xl border border-border bg-surface shadow-card", className)}
       {...props}
     >
       {title || actions ? (
-        <header className="flex min-h-12 items-center gap-3 border-b border-line px-4 py-2.5">
+        <header className="flex min-h-12 items-center gap-3 border-b border-border px-4 py-2.5">
           {title ? (
-            <Heading className="flex min-w-0 flex-1 items-center gap-2 text-sm font-semibold text-fg">
-              {index ? <span className="font-mono text-[11px] font-normal text-cyan">{index}</span> : null}
-              <span className="truncate">{title}</span>
-            </Heading>
+            <div className="min-w-0 flex-1">
+              <Heading className="truncate text-sm font-semibold text-fg">{title}</Heading>
+              {description ? <p className="mt-0.5 text-xs text-fg-muted">{description}</p> : null}
+            </div>
           ) : (
             <span className="flex-1" />
           )}

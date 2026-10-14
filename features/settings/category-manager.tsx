@@ -59,7 +59,7 @@ export function CategoryManager({ idPrefix, noun, categories, loading, error, on
   }
 
   const row = (category: ManagedCategory) => (
-    <li key={category.id} className="flex flex-wrap items-center gap-2 rounded-hud border border-line bg-base/40 px-3 py-2">
+    <li key={category.id} className="flex flex-wrap items-center gap-2 rounded-lg px-2.5 py-1.5 transition-colors hover:bg-muted">
       <CategoryChip name={category.name} color={category.color} className="min-w-0 flex-1 text-sm text-fg" />
       {category.isArchived ? <Badge>Archived</Badge> : null}
       <div className="flex items-center gap-0.5">
@@ -98,18 +98,18 @@ export function CategoryManager({ idPrefix, noun, categories, loading, error, on
     <div className="grid gap-3">
       {error ? <ErrorState message={error} onRetry={onRetry} /> : null}
       {loading ? (
-        <Skeleton className="h-32" />
+        <Skeleton className="h-32 rounded-lg" />
       ) : list.length === 0 ? (
         <EmptyState title={`No ${noun} categories`} description="Create one to start organizing your entries." />
       ) : (
         <>
-          <ul className="grid gap-1.5">{active.map(row)}</ul>
+          <ul className="-mx-2.5 grid gap-0.5">{active.map(row)}</ul>
           {archived.length > 0 ? (
             <details className="group">
-              <summary className="cursor-pointer text-xs text-fg-muted hover:text-fg">
+              <summary className="cursor-pointer rounded-md text-xs font-medium text-fg-muted hover:text-fg">
                 Archived ({archived.length}) — hidden from pickers, kept on existing entries
               </summary>
-              <ul className="mt-2 grid gap-1.5">{archived.map(row)}</ul>
+              <ul className="-mx-2.5 mt-2 grid gap-0.5">{archived.map(row)}</ul>
             </details>
           ) : null}
         </>
@@ -219,7 +219,7 @@ function CategoryDialog({
   return (
     <Dialog open={target !== null} onOpenChange={(open) => (!open && !saving ? onClose() : undefined)}>
       {target !== null ? (
-        <DialogContent title={editing ? `Edit ${noun} category` : `New ${noun} category`} eyebrow="Categories" busy={saving}>
+        <DialogContent title={editing ? `Edit ${noun} category` : `New ${noun} category`} busy={saving}>
           <form onSubmit={handleSubmit} className="grid gap-4" noValidate>
             <Field id={`${idPrefix}-category-name`} label="Name" required error={nameError ?? undefined}>
               {(control) => (
@@ -227,11 +227,11 @@ function CategoryDialog({
               )}
             </Field>
             <div className="grid gap-1.5">
-              <span className="text-xs font-medium tracking-wide text-fg-muted">Color</span>
+              <span className="text-[13px] font-medium text-fg">Color</span>
               <ColorPicker id={`${idPrefix}-category-color`} value={color} onChange={setColor} disabled={saving} />
             </div>
             <FormError message={formError} />
-            <Button type="submit" variant="solid" size="lg" loading={saving} className="sm:justify-self-end">
+            <Button type="submit" variant="primary" loading={saving} className="sm:justify-self-end">
               {editing ? "Save category" : "Create category"}
             </Button>
           </form>

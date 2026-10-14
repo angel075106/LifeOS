@@ -3,11 +3,10 @@
 import { MailCheck } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { ConfigMissingNotice, authErrorMessage, isSupabaseConfigured } from "@/components/auth/auth-shared";
+import { AuthCard, ConfigMissingNotice, authErrorMessage, isSupabaseConfigured } from "@/components/auth/auth-shared";
 import { Button } from "@/components/ui/button";
 import { Field, FormError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Panel } from "@/components/ui/panel";
 import { createClient } from "@/lib/supabase/client";
 
 export function ForgotPasswordForm() {
@@ -39,21 +38,21 @@ export function ForgotPasswordForm() {
 
   if (success) {
     return (
-      <Panel title="Check your email" index="01">
+      <AuthCard title="Check your email">
         <div className="grid gap-3 text-sm text-fg-muted">
-          <MailCheck className="size-6 text-cyan" aria-hidden="true" />
+          <MailCheck className="size-6 text-accent-text" aria-hidden="true" />
           <p>If an account exists for that address, a password reset link is on its way.</p>
           <p>Open the link on this device and browser to choose a new password.</p>
-          <Link href="/auth/login" className="text-cyan underline-offset-4 hover:underline">
+          <Link href="/auth/login" className="font-medium text-accent-text underline-offset-4 hover:underline">
             Back to sign in
           </Link>
         </div>
-      </Panel>
+      </AuthCard>
     );
   }
 
   return (
-    <Panel title="Reset password" index="01">
+    <AuthCard title="Reset password">
       <form onSubmit={handleSubmit} className="grid gap-4">
         <p className="text-sm text-fg-muted">Enter your email and we&apos;ll send you a link to reset your password.</p>
         <Field id="email" label="Email" required>
@@ -70,13 +69,13 @@ export function ForgotPasswordForm() {
           )}
         </Field>
         <FormError message={error} />
-        <Button type="submit" variant="solid" size="lg" loading={isLoading} className="w-full">
+        <Button type="submit" variant="primary" size="lg" loading={isLoading} className="w-full">
           {isLoading ? "Sending…" : "Send reset link"}
         </Button>
         <Link href="/auth/login" className="text-center text-sm text-fg-muted underline-offset-4 hover:text-fg hover:underline">
           Back to sign in
         </Link>
       </form>
-    </Panel>
+    </AuthCard>
   );
 }

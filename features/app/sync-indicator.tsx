@@ -75,25 +75,27 @@ export function SyncIndicator({ compact = false }: { compact?: boolean }) {
     <div
       role="status"
       title={`${detail} ${synced}`.trim()}
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em]",
-        tone === "ok" && "border-income/30 text-income",
-        tone === "warn" && "border-warn/40 text-warn",
-        tone === "busy" && "border-cyan/30 text-cyan-soft",
-      )}
+      className="inline-flex min-w-0 items-center gap-1.5 whitespace-nowrap text-xs font-medium text-fg-muted"
     >
       {tone === "ok" ? (
-        <span className="size-1.5 rounded-full bg-income animate-hud-pulse motion-reduce:animate-none" aria-hidden="true" />
+        <span className="size-2 shrink-0 rounded-full bg-income" aria-hidden="true" />
       ) : (
-        <Icon className={cn("size-3", Icon === Loader2 && "animate-spin motion-reduce:animate-none")} aria-hidden="true" />
+        <Icon
+          className={cn(
+            "size-3.5 shrink-0",
+            tone === "warn" ? "text-warning" : "text-accent-text",
+            Icon === Loader2 && "animate-spin motion-reduce:animate-none",
+          )}
+          aria-hidden="true"
+        />
       )}
       <span>{label}</span>
       <span className="sr-only">
         {detail} {synced}
       </span>
       {!compact && lastSyncedAt ? (
-        <span className="text-fg-subtle normal-case tracking-normal" aria-hidden="true">
-          {formatClockTime(lastSyncedAt, timezone)}
+        <span className="font-normal tabular-nums text-fg-subtle" aria-hidden="true">
+          · {formatClockTime(lastSyncedAt, timezone)}
         </span>
       ) : null}
     </div>

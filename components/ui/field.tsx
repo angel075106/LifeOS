@@ -28,11 +28,11 @@ export function Field({ id, label, hint, error, required, className, children }:
   const describedBy = [errorId, hintId].filter(Boolean).join(" ") || undefined;
 
   return (
-    <div className={cn("grid content-start gap-1.5", className)}>
+    <div className={cn("grid min-w-0 content-start gap-1.5", className)}>
       <Label htmlFor={id}>
         {label}
         {required ? (
-          <span className="ml-0.5 text-cyan" aria-hidden="true">
+          <span className="ml-0.5 text-fg-subtle" aria-hidden="true">
             *
           </span>
         ) : null}
@@ -65,7 +65,7 @@ export function FormError({ message, className }: { message?: string | null; cla
     <div
       role="alert"
       className={cn(
-        "flex items-start gap-2 rounded-hud border border-expense/40 bg-expense/10 px-3 py-2 text-sm text-expense",
+        "flex items-start gap-2 rounded-lg border border-expense/25 bg-expense-soft px-3 py-2.5 text-sm text-expense",
         className,
       )}
     >

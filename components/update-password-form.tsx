@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
+  AuthCard,
   ConfigMissingNotice,
   PASSWORD_MIN_LENGTH,
   authErrorMessage,
@@ -12,7 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Field, FormError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Panel } from "@/components/ui/panel";
 import { createClient } from "@/lib/supabase/client";
 
 export function UpdatePasswordForm() {
@@ -56,7 +56,7 @@ export function UpdatePasswordForm() {
   };
 
   return (
-    <Panel title="Choose a new password" index="01">
+    <AuthCard title="Choose a new password">
       <form onSubmit={handleSubmit} className="grid gap-4">
         <Field id="password" label="New password" required hint={`At least ${PASSWORD_MIN_LENGTH} characters.`}>
           {(control) => (
@@ -84,13 +84,13 @@ export function UpdatePasswordForm() {
           )}
         </Field>
         <FormError message={error} />
-        <Button type="submit" variant="solid" size="lg" loading={isLoading} className="w-full">
+        <Button type="submit" variant="primary" size="lg" loading={isLoading} className="w-full">
           {isLoading ? "Saving…" : "Save new password"}
         </Button>
         <Link href="/auth/forgot-password" className="text-center text-sm text-fg-muted underline-offset-4 hover:text-fg hover:underline">
           Request a new link
         </Link>
       </form>
-    </Panel>
+    </AuthCard>
   );
 }

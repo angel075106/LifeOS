@@ -42,13 +42,13 @@ export function ConfirmDialog({
   return (
     <AlertDialog.Root open={open} onOpenChange={(next) => (!pending ? onOpenChange(next) : undefined)}>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-[60] bg-void/85 data-[state=open]:animate-hud-fade" />
+        <AlertDialog.Overlay className="fixed inset-0 z-[60] bg-scrim data-[state=open]:animate-fade-in" />
         <AlertDialog.Content
-          className="fixed left-1/2 top-1/2 z-[60] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-expense/40 bg-panel p-5 shadow-2xl shadow-black/60 data-[state=open]:animate-hud-rise"
+          className="fixed left-1/2 top-1/2 z-[60] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-surface-raised p-5 shadow-dialog data-[state=open]:animate-scale-in"
           onEscapeKeyDown={(event) => (pending ? event.preventDefault() : undefined)}
         >
           <div className="flex gap-3">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-expense/40 bg-expense/10 text-expense">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-expense-soft text-expense">
               <AlertTriangle className="size-4" aria-hidden="true" />
             </span>
             <div className="min-w-0">
@@ -61,7 +61,7 @@ export function ConfirmDialog({
           {children ? <div className="mt-4">{children}</div> : null}
           <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <AlertDialog.Cancel asChild>
-              <Button variant="ghost" disabled={pending}>
+              <Button variant="secondary" disabled={pending}>
                 Cancel
               </Button>
             </AlertDialog.Cancel>

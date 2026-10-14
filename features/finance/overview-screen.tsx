@@ -109,7 +109,6 @@ function FinanceOverviewContent() {
   return (
     <>
       <PageHeader
-        eyebrow="Ledger"
         title="Finance"
         description="Income, expenses and net cash flow. Totals are kept separate per currency."
         actions={
@@ -127,7 +126,7 @@ function FinanceOverviewContent() {
       />
       <FinanceTabs />
 
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <MonthNavigator
           month={month}
           currentMonth={currentMonth}
@@ -152,9 +151,9 @@ function FinanceOverviewContent() {
       ) : null}
 
       {/* KPI tiles, one row per currency */}
-      <section aria-label={`Totals for ${monthLabel}`} className="mb-4 grid gap-3">
+      <section aria-label={`Totals for ${monthLabel}`} className="mb-5 grid gap-3">
         {loading && !transactionsQuery.data ? (
-          <Skeleton className="h-24" />
+          <Skeleton className="h-24 rounded-xl" />
         ) : currencies.length === 0 ? (
           <EmptyState
             icon={<Wallet aria-hidden="true" />}
@@ -168,20 +167,20 @@ function FinanceOverviewContent() {
             return (
               <dl
                 key={currency}
-                className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line md:grid-cols-4"
+                className="grid grid-cols-2 gap-3 md:grid-cols-4"
                 aria-label={`${currency} totals`}
               >
                 <Kpi label={`Income · ${currency}`}>
-                  <MoneyAmount minor={flow.income} currency={currency} kind="income" className="text-lg" />
+                  <MoneyAmount minor={flow.income} currency={currency} kind="income" className="text-xl font-semibold tracking-tight" />
                 </Kpi>
                 <Kpi label={`Expenses · ${currency}`}>
-                  <MoneyAmount minor={flow.expense} currency={currency} kind="expense" className="text-lg" />
+                  <MoneyAmount minor={flow.expense} currency={currency} kind="expense" className="text-xl font-semibold tracking-tight" />
                 </Kpi>
                 <Kpi label={`Net cash flow · ${currency}`}>
-                  <MoneyAmount minor={flow.net} currency={currency} kind="net" className="text-lg" />
+                  <MoneyAmount minor={flow.net} currency={currency} kind="net" className="text-xl font-semibold tracking-tight" />
                 </Kpi>
                 <Kpi label="Transactions">
-                  <span className="text-lg font-semibold text-fg">{flow.count}</span>
+                  <span className="text-xl font-semibold tracking-tight tabular-nums text-fg">{flow.count}</span>
                 </Kpi>
               </dl>
             );
@@ -190,8 +189,8 @@ function FinanceOverviewContent() {
       </section>
 
       {currencies.length > 0 ? (
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <Panel title={`Daily cash flow · ${chartCurrency}`} index="01">
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <Panel title={`Daily cash flow · ${chartCurrency}`}>
             <IncomeExpenseChart
               data={daily}
               currency={chartCurrency}
@@ -200,7 +199,7 @@ function FinanceOverviewContent() {
               description="Net cash flow is income minus expenses in the period, not an account balance."
             />
           </Panel>
-          <Panel title="Breakdown" index="02">
+          <Panel title="Breakdown">
             <div className="grid gap-6">
               <BarList
                 title={`Spending by category · ${chartCurrency}`}
@@ -217,12 +216,11 @@ function FinanceOverviewContent() {
         </div>
       ) : null}
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-2">
+      <div className="mt-5 grid gap-5 xl:grid-cols-2">
         <Panel
           title={`Budgets · ${monthLabel}`}
-          index="03"
           actions={
-            <Link href={`/finance/budgets${month === currentMonth ? "" : `?month=${month.slice(0, 7)}`}`} className="text-xs text-cyan underline-offset-4 hover:underline">
+            <Link href={`/finance/budgets${month === currentMonth ? "" : `?month=${month.slice(0, 7)}`}`} className="text-xs font-medium text-accent-text underline-offset-4 hover:underline">
               Manage
             </Link>
           }
@@ -258,9 +256,8 @@ function FinanceOverviewContent() {
 
         <Panel
           title="Recent transactions"
-          index="04"
           actions={
-            <Link href="/finance/transactions" className="text-xs text-cyan underline-offset-4 hover:underline">
+            <Link href="/finance/transactions" className="text-xs font-medium text-accent-text underline-offset-4 hover:underline">
               View all
             </Link>
           }
@@ -272,7 +269,7 @@ function FinanceOverviewContent() {
           ) : (recentQuery.data ?? []).length === 0 ? (
             <EmptyState title="No transactions yet" description="Your latest income and expenses will appear here." />
           ) : (
-            <ul className="grid gap-1.5">
+            <ul className="-mx-2.5 grid gap-0.5">
               {(recentQuery.data ?? []).map((transaction) => (
                 <li key={transaction.id}>
                   <TransactionRow
@@ -293,8 +290,8 @@ function FinanceOverviewContent() {
 
 function Kpi({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex min-w-0 flex-col gap-1 bg-panel px-4 py-3">
-      <dt className="hud-label">{label}</dt>
+    <div className="flex min-w-0 flex-col gap-1 rounded-xl border border-border bg-surface px-4 py-3 shadow-card">
+      <dt className="text-xs font-medium text-fg-muted">{label}</dt>
       <dd>{children}</dd>
     </div>
   );

@@ -20,14 +20,15 @@ import { cn } from "@/lib/utils";
 import { ChartFrame, ChartTable } from "./chart-frame";
 
 export const CHART_COLORS = {
-  income: "var(--color-chart-income)",
-  expense: "var(--color-chart-expense)",
-  accent: "var(--color-chart-accent)",
+  income: "var(--chart-income)",
+  expense: "var(--chart-expense)",
+  accent: "var(--chart-accent)",
 } as const;
 
-const AXIS_TICK = { fill: "var(--color-fg-subtle)", fontSize: 11 } as const;
-const GRID_STROKE = "var(--color-line)";
-const CURSOR = { fill: "rgb(148 163 184 / 0.07)" };
+const AXIS_TICK = { fill: "var(--fg-subtle)", fontSize: 11 } as const;
+const GRID_STROKE = "var(--chart-grid)";
+const AXIS_STROKE = "var(--border-strong)";
+const CURSOR = { fill: "var(--muted)", fillOpacity: 0.8 };
 
 function compactMoneyTick(minor: number, currency: Currency): string {
   // Axis ticks only: compact display may round; exact values are in tooltips and tables.
@@ -57,13 +58,13 @@ type TooltipRow = { label: string; color: string; value: string };
 /** Values lead, series names follow; series keyed with a short line in the series color. */
 function ChartTooltipBody({ title, rows }: { title: string; rows: TooltipRow[] }) {
   return (
-    <div className="min-w-36 rounded-hud border border-line-strong bg-panel-raised/95 px-3 py-2 text-xs shadow-xl shadow-black/50 backdrop-blur">
+    <div className="min-w-36 rounded-lg border border-border bg-surface-raised px-3 py-2 text-xs shadow-popover">
       <p className="mb-1 text-fg-muted">{title}</p>
       <ul className="grid gap-1">
         {rows.map((row) => (
           <li key={row.label} className="flex items-center gap-2">
             <span className="h-0.5 w-3 rounded-full" style={{ backgroundColor: row.color }} aria-hidden="true" />
-            <span className="font-mono font-semibold text-fg">{row.value}</span>
+            <span className="font-semibold tabular-nums text-fg">{row.value}</span>
             <span className="text-fg-muted">{row.label}</span>
           </li>
         ))}
@@ -84,12 +85,14 @@ export function IncomeExpenseChart({
   title,
   description,
   busy,
+  hideTitle,
 }: {
   data: CashFlowPoint[];
   currency: Currency;
   title: string;
   description?: string;
   busy?: boolean;
+  hideTitle?: boolean;
 }) {
   const money = (value: number) => formatMoney(value, currency);
   return (
@@ -97,6 +100,7 @@ export function IncomeExpenseChart({
       title={title}
       description={description}
       busy={busy}
+      hideTitle={hideTitle}
       legend={[
         { label: "Income", color: CHART_COLORS.income },
         { label: "Expenses", color: CHART_COLORS.expense },
@@ -116,7 +120,7 @@ export function IncomeExpenseChart({
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} barGap={2} barCategoryGap="22%" margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
             <CartesianGrid vertical={false} stroke={GRID_STROKE} />
-            <XAxis dataKey="label" tick={AXIS_TICK} tickLine={false} axisLine={{ stroke: "var(--color-line-strong)" }} minTickGap={8} />
+            <XAxis dataKey="label" tick={AXIS_TICK} tickLine={false} axisLine={{ stroke: AXIS_STROKE }} minTickGap={8} />
             <YAxis
               tick={AXIS_TICK}
               tickLine={false}
@@ -135,7 +139,7 @@ export function IncomeExpenseChart({
                     rows={[
                       { label: "Income", color: CHART_COLORS.income, value: money(point.income) },
                       { label: "Expenses", color: CHART_COLORS.expense, value: money(point.expense) },
-                      { label: "Net", color: "var(--color-fg-subtle)", value: formatMoney(point.net, currency, { signDisplay: "exceptZero" }) },
+                      { label: "Net", color: "var(--fg-subtle)", value: formatMoney(point.net, currency, { signDisplay: "exceptZero" }) },
                     ]}
                   />
                 );
@@ -160,18 +164,21 @@ export function NetFlowChart({
   title,
   description,
   busy,
+  hideTitle,
 }: {
   data: CashFlowPoint[];
   currency: Currency;
   title: string;
   description?: string;
   busy?: boolean;
+  hideTitle?: boolean;
 }) {
   return (
     <ChartFrame
       title={title}
       description={description}
       busy={busy}
+      hideTitle={hideTitle}
       table={
         <ChartTable
           caption={title}
@@ -195,7 +202,7 @@ export function NetFlowChart({
               width={58}
               tickFormatter={(value: number) => compactMoneyTick(value, currency)}
             />
-            <ReferenceLine y={0} stroke="var(--color-line-strong)" />
+            <ReferenceLine y={0} stroke={AXIS_STROKE} />
             <Tooltip
               cursor={CURSOR}
               content={(props: TooltipContentProps) => {
@@ -238,17 +245,20 @@ export function DurationChart({
   title,
   description,
   busy,
+  hideTitle,
 }: {
   data: DurationPoint[];
   title: string;
   description?: string;
   busy?: boolean;
+  hideTitle?: boolean;
 }) {
   return (
     <ChartFrame
       title={title}
       description={description}
       busy={busy}
+      hideTitle={hideTitle}
       table={
         <ChartTable
           caption={title}
@@ -261,7 +271,7 @@ export function DurationChart({
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} barCategoryGap="22%" margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
             <CartesianGrid vertical={false} stroke={GRID_STROKE} />
-            <XAxis dataKey="label" tick={AXIS_TICK} tickLine={false} axisLine={{ stroke: "var(--color-line-strong)" }} minTickGap={8} />
+            <XAxis dataKey="label" tick={AXIS_TICK} tickLine={false} axisLine={{ stroke: AXIS_STROKE }} minTickGap={8} />
             <YAxis
               tick={AXIS_TICK}
               tickLine={false}
@@ -311,13 +321,13 @@ export function BarList({ items, title, emptyLabel }: { items: BarListItem[]; ti
             <li key={item.key} className="grid gap-1">
               <div className="flex items-center gap-2 text-xs">
                 {item.swatch ? (
-                  <span className="size-2 shrink-0 rounded-[2px] ring-1 ring-white/15" style={{ backgroundColor: item.swatch }} aria-hidden="true" />
+                  <span className="size-2 shrink-0 rounded-full ring-1 ring-fg/10" style={{ backgroundColor: item.swatch }} aria-hidden="true" />
                 ) : null}
                 <span className="min-w-0 flex-1 truncate text-fg">{item.label}</span>
-                <span className="font-mono tabular-nums text-fg">{item.display}</span>
-                <span className="w-10 text-right font-mono tabular-nums text-fg-subtle">{Math.round(item.share * 100)}%</span>
+                <span className="font-medium tabular-nums text-fg">{item.display}</span>
+                <span className="w-10 text-right tabular-nums text-fg-subtle">{Math.round(item.share * 100)}%</span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-[rgb(8_145_178/0.15)]" aria-hidden="true">
+              <div className="h-1.5 overflow-hidden rounded-full bg-muted-strong" aria-hidden="true">
                 <div
                   className="h-full rounded-full"
                   style={{ width: `${Math.max(2, (item.value / max) * 100)}%`, backgroundColor: CHART_COLORS.accent }}
@@ -336,9 +346,9 @@ export function BarList({ items, title, emptyLabel }: { items: BarListItem[]; ti
 // ---------------------------------------------------------------------------
 
 const BUDGET_STATUS: Record<BudgetStatus, { label: string; icon: typeof CheckCircle2; text: string; fill: string; track: string }> = {
-  ok: { label: "On track", icon: CheckCircle2, text: "text-fg-muted", fill: "var(--color-chart-accent)", track: "rgb(8 145 178 / 0.18)" },
-  warning: { label: "Near limit", icon: AlertTriangle, text: "text-warn", fill: "var(--color-warn)", track: "rgb(251 191 36 / 0.18)" },
-  over: { label: "Over budget", icon: OctagonAlert, text: "text-expense", fill: "var(--color-chart-expense)", track: "rgb(239 68 68 / 0.18)" },
+  ok: { label: "On track", icon: CheckCircle2, text: "text-fg-muted", fill: "var(--chart-accent)", track: "var(--muted-strong)" },
+  warning: { label: "Near limit", icon: AlertTriangle, text: "text-warning", fill: "var(--warning)", track: "var(--warning-soft)" },
+  over: { label: "Over budget", icon: OctagonAlert, text: "text-expense", fill: "var(--chart-expense)", track: "var(--expense-soft)" },
 };
 
 export function BudgetMeter({
@@ -382,11 +392,11 @@ export function BudgetMeter({
           <Icon className="size-3.5" aria-hidden="true" />
           {config.label}
         </span>
-        <span className="font-mono tabular-nums text-fg">
+        <span className="tabular-nums text-fg">
           {formatMoney(spentMinor, currency)} <span className="text-fg-subtle">/ {formatMoney(limitMinor, currency)}</span>
         </span>
-        <span className="font-mono tabular-nums text-fg-subtle">{percent}%</span>
-        <span className={cn("ml-auto font-mono tabular-nums", remaining < 0 ? "text-expense" : "text-fg-muted")}>
+        <span className="tabular-nums text-fg-subtle">{percent}%</span>
+        <span className={cn("ml-auto tabular-nums", remaining < 0 ? "text-expense" : "text-fg-muted")}>
           {remaining < 0 ? `${formatMoney(-remaining, currency)} over` : `${formatMoney(remaining, currency)} left`}
         </span>
       </div>
