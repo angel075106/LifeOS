@@ -1,0 +1,222 @@
+@import "tailwindcss";
+
+/*
+ * LifeOS HUD design tokens.
+ * Contrast (on --color-panel): fg ~15:1, fg-muted ~7:1, fg-subtle ~4.8:1 (AA for body text).
+ * Semantic colors are always paired with an icon, sign or label - never color alone.
+ */
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Surfaces: near-black navy -> dark slate */
+  --color-void: #04070d;
+  --color-base: #070c16;
+  --color-panel: #0b1322;
+  --color-panel-raised: #101a2d;
+  --color-panel-hover: #15213a;
+  --color-line: #1b2a44;
+  --color-line-strong: #2a3f64;
+
+  /* Text */
+  --color-fg: #e6edf7;
+  --color-fg-muted: #93a4c0;
+  --color-fg-subtle: #7486a6;
+
+  /* Accents */
+  --color-cyan: #22d3ee;
+  --color-cyan-soft: #67e8f9;
+  --color-cyan-deep: #0e7490;
+  --color-electric: #3b82f6;
+  --color-electric-soft: #60a5fa;
+
+  /* Semantics */
+  --color-income: #34d399;
+  --color-income-deep: #065f46;
+  --color-warn: #fbbf24;
+  --color-warn-deep: #78350f;
+  --color-expense: #f87171;
+  --color-expense-deep: #7f1d1d;
+  --color-danger: #ef4444;
+
+  /*
+   * Chart marks. Validated with the dataviz palette checks against --color-panel (dark):
+   * lightness band, chroma, CVD separation (deutan dE 9.6), normal-vision and contrast all pass.
+   * UI text keeps the brighter income/expense tones above; these are for filled marks only.
+   */
+  --color-chart-income: #059669;
+  --color-chart-expense: #ef4444;
+  --color-chart-accent: #0891b2;
+
+  --radius-hud: 0.375rem;
+
+  --animate-hud-fade: hud-fade 160ms ease-out;
+  --animate-hud-rise: hud-rise 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-hud-sheet: hud-sheet 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-hud-pulse: hud-pulse 2.4s ease-in-out infinite;
+
+  @keyframes hud-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes hud-rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes hud-sheet {
+    from {
+      opacity: 0.6;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes hud-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-line);
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--color-void);
+    background-image:
+      radial-gradient(1100px 520px at 8% -12%, rgb(34 211 238 / 0.07), transparent 62%),
+      radial-gradient(900px 480px at 108% 4%, rgb(59 130 246 / 0.07), transparent 60%),
+      linear-gradient(rgb(148 163 184 / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(148 163 184 / 0.03) 1px, transparent 1px);
+    background-size:
+      auto,
+      auto,
+      32px 32px,
+      32px 32px;
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::selection {
+    background: rgb(34 211 238 / 0.3);
+    color: var(--color-fg);
+  }
+
+  /* One consistent, highly visible keyboard focus indicator. */
+  :focus-visible {
+    outline: 2px solid var(--color-cyan);
+    outline-offset: 2px;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
+
+  /* Native date/time pickers: light glyphs on the dark theme. */
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.75);
+    cursor: pointer;
+  }
+}
+
+/* Thin cyan corner brackets, the signature HUD panel detail. */
+@utility hud-corners {
+  --corner: rgb(34 211 238 / 0.55);
+  --corner-size: 10px;
+  background-image:
+    linear-gradient(var(--corner), var(--corner)), linear-gradient(var(--corner), var(--corner)),
+    linear-gradient(var(--corner), var(--corner)), linear-gradient(var(--corner), var(--corner)),
+    linear-gradient(var(--corner), var(--corner)), linear-gradient(var(--corner), var(--corner)),
+    linear-gradient(var(--corner), var(--corner)), linear-gradient(var(--corner), var(--corner));
+  background-size:
+    var(--corner-size) 1px,
+    1px var(--corner-size),
+    var(--corner-size) 1px,
+    1px var(--corner-size),
+    var(--corner-size) 1px,
+    1px var(--corner-size),
+    var(--corner-size) 1px,
+    1px var(--corner-size);
+  background-position:
+    top left,
+    top left,
+    top right,
+    top right,
+    bottom left,
+    bottom left,
+    bottom right,
+    bottom right;
+  background-repeat: no-repeat;
+}
+
+/* Small uppercase technical label. */
+@utility hud-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-fg-muted);
+}
+
+@utility hud-glow {
+  box-shadow:
+    0 0 0 1px rgb(34 211 238 / 0.35),
+    0 0 18px -6px rgb(34 211 238 / 0.55);
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
